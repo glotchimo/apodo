@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "gato"
+version = "0.1.0"
+description = "A remarkably fast asynchronous web framework for Python."
+authors = ["Elliott Maguire <me@elliott-m.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+cython = "^0.29.12"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
