@@ -13,6 +13,10 @@ Gato is going to be loosely derived from the design goals of the Vibora framewor
 
 The first phase of alpha development will be the porting of the entire Vibora library into Gato. This will not simply be a copy-paste job; the goal of this process is to clean and optimize the modules that are coming over to make the future of development simpler and easier.
 
+All port changes will be commited to a development branch, and once the entire port is complete, then development will be merged onto master. After this has been completed, development merges to master will occur on a release basis.
+
+Another thing to note is that, until the entire port is complete, there will be no need or application for tests, as we will not have a complete library to work with, and many modules will have missing first-party dependencies.
+
 Once all source has been ported over, we will begin the testing/monitoring and fixing processes. There are a few major bottlenecks and design flaws that will be addressed once things are running smoothly. Those targets will be finalized once the port is complete.
 
 ## Development Pipeline
