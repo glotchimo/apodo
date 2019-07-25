@@ -36,7 +36,7 @@ Some things to note:
 
 ### Phase two+ process (standard post-port development procedure)
 
-1. Create/address an issue.
+1. Create/address an issue. Name your branch in the format of `port-<module name>`.
 2. Implement a fix, and open a PR. Your PR must pass all existing tests, as well as coverage for new code.
 3. Receive at least one review from any contributor, and merge.
 
