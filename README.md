@@ -32,7 +32,7 @@ Pipeline will look slightly different from phase one to phase two.
 Some things to note:
 
 - Module functionality doesn't need to and shouldn't always be altered. The changes that are made in the port should be to commenting, style, and syntax. Major functionality changes will be carried out after the port is complete.
-- Do NOT change module or method names. If this is to happen, it MUST be done after the port, unless an agreement is reached amongst the core team.
+- While you should avoid doing so, if you change module, class, method, or variable names, you MUST propagate those changes through other files.
 
 ### Phase two+ process (standard post-port development procedure)
 
