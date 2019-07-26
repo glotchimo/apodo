@@ -2,7 +2,7 @@
 gato.application
 ~~~~~~~~~~~~~~~~
 
-This module implements the Application class.
+This module implements the `Application` class.
 """
 
 from itertools import chain
@@ -23,21 +23,21 @@ from .limits import ServerLimits
 
 
 class Application(Blueprint):
-    """ Implements Application.
+    """ Implements `Application`.
 
-    This is a sublass of Blueprint, which defines the base utilities
-    for the app, with Application managing state and session.
+    This is a sublass of `Blueprint`, which defines the base utilities
+    for the app, with `Application` managing state and session.
 
-    :param template_dirs: A list of template directives.
-    :param router_strategy: A RouterStrategy object.
-    :param sessions_engine: A SessionEngine object.
-    :param server_name: A str representing the name of the server.
-    :param url_scheme: A str repressenting the URL scheme, default being http.
-    :param static: A StaticHandler object.
-    :param log_handler: A Callable object.
-    :param server_limits: A ServerLimits object.
-    :param route_limits: A RouteLimits object.
-    :param request_class: A Request class.
+    :param `template_dirs`: A `list` of template directives.
+    :param `router_strategy`: A `RouterStrategy` object.
+    :param `sessions_engine`: A `SessionEngine` object.
+    :param `server_name`: A `str` representing the name of the server.
+    :param `url_scheme`: A `str` repressenting the URL scheme, default being http.
+    :param `static`: A `StaticHandler` object.
+    :param `log_handler`: A `Callable object`.
+    :param `server_limits`: A `ServerLimits` object.
+    :param `route_limits`: A `RouteLimits` object.
+    :param `request_class`: A `Request` class.
     """
 
     current_time: str = None
@@ -90,8 +90,8 @@ class Application(Blueprint):
         parent and prefixes, registers any existing routes, and then sets up
         any hooks.
 
-        :param blueprint: A Blueprint object to add.
-        :param prefixes: A dict of prefixes.
+        :param `blueprint`: A `Blueprint` object to add.
+        :param `prefixes`: A `dict` of prefixes.
         """
         if blueprint.parent:
             raise DuplicatedBlueprint()
@@ -120,15 +120,15 @@ class Application(Blueprint):
                 setattr(blueprint, name, local_hooks)
 
     def _register_routes(self, blueprint, prefixes=None):
-        """ Registers routes from a Blueprint.
+        """ Registers routes from a `Blueprint`.
 
         This method first saerches through the provided prefixes for nested blueprints,
         and recursively calls itself with those objects. Following that, the blueprint's
         app is set as well as any routes it has. Then, the routes are added to the app's
         router.
 
-        :param blueprint: A Blueprint object.
-        :param prefixes: A dict of prefixes.
+        :param `blueprint`: A `Blueprint` object.
+        :param `prefixes`: A `dict` of prefixes.
         """
         for name, pattern in prefixes.items():
             for nested_blueprint, nested_prefixes in blueprint.blueprints.items():
@@ -158,9 +158,9 @@ class Application(Blueprint):
         at first discovery of the hook, then defaults to checking hook collections
         on the blueprint.
 
-        :param hook_id: The int ID of a given hook.
+        :param `hook_id`: The `int` ID of a given hook.
 
-        :return: Boolean depending on whether or not the given hook was found.
+        :return: `Boolean` depending on whether or not the given hook was found.
         """
 
         for blueprint in self.blueprints.keys():
@@ -178,13 +178,13 @@ class Application(Blueprint):
         This method collects the existing app, or an additional route and
         the existing app, then iterates through the hooks and calls the handler
         if the given hook is found. If the hook is not found, or the response fails,
-        it returns None.
+        it returns `None`.
 
-        :param hook_id: The int ID of a given hook.
-        :param components: List of existing components to pull hooks from.
-        :param route: (optional) An additional Route object to call hooks on.
+        :param `hook_id`: The `int` ID of a given hook.
+        :param `components`: `List` of existing components to pull hooks from.
+        :param `route`: (optional) An additional `Route` object to call hooks on.
 
-        :return response: (optional) A Response object.
+        :return `response`: (optional) A `Response` object.
         """
         objects = (route.parent, self) if route and route.parent != self else (self,)
         for object in objects:
@@ -207,8 +207,8 @@ class Application(Blueprint):
         This method constructs a URL from a given route name, and will build a full
         URL from server_name and url_scheme if _external is set to True.
 
-        :param _name: The str name of a route.
-        :param _external: A bool determining the use of an external URL.
+        :param `_name`: The `str` name of a route.
+        :param `_external`: A `bool` determining the use of an external URL.
 
         :return url: A str URL.
         """
