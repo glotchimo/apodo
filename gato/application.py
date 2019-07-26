@@ -150,3 +150,24 @@ class Application(Blueprint):
             route.limits = route.limits or self.limits
 
             self.router.add_route(route, prefixes=prefixes)
+
+    def check_hook(self, hook_id):
+        """ Checks for the existence of a given hook.
+
+        This method first searches any nested blueprints and returns
+        at first discovery of the hook, then defaults to checking hook collections
+        on the blueprint.
+
+        :param hook_id: The int ID of a given hook.
+
+        :return: Boolean depending on whether or not the given hook was found.
+        """
+
+        for blueprint in self.blueprints.keys():
+            if bool(blueprint.hooks.get(hook_id)):
+                return True
+
+            if bool(blueprint.async_hooks.get(hook_id)):
+                return True
+
+        return bool(self.hooks.get(hook_id) or self.async_hooks.get(hook_id))
