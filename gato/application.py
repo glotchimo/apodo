@@ -82,3 +82,39 @@ class Application(Blueprint):
             )
         self.request_class = request_class
         self._test_client = None
+
+    def add_blueprint(self, blueprint, prefixes=None):
+        """ Adds a blueprint to the application.
+
+        This method ensures that a given blueprint is new, configures its
+        parent and prefixes, registers any existing routes, and then sets up
+        any hooks.
+
+        :param blueprint: A Blueprint object to add.
+        :param prefixes: A dict of prefixes.
+        """
+        if blueprint.parent:
+            raise DuplicatedBlueprint()
+        elif blueprint != self:
+            blueprint.parent = self
+
+        prefixes = prefixes or {}
+
+        self._register_routes(blueprint, prefixes)
+
+        self.blueprints[blueprint] = prefixes
+
+        if blueprint != self:
+            for collection, name in (
+                (blueprint.hooks, "hooks"),
+                (blueprint.async_hooks, "async_hooks"),
+            ):
+                local_hooks = {}
+                for hook_type, hooks in collection.items():
+                    for hook in hooks:
+                        if not hook.local:
+                            self.add_hook(hook)
+                        else:
+                            local_hooks.setdefault(hook.event_type, []).append(hook)
+
+                setattr(blueprint, name, local_hooks)
