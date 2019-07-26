@@ -25,7 +25,7 @@ from .limits import ServerLimits
 class Application(Blueprint):
     """ Implements `Application`.
 
-    This is a sublass of `Blueprint`, which defines the base utilities
+    This is a subclass of `Blueprint`, which defines the base utilities
     for the app, with `Application` managing state and session.
 
     :param `template_dirs`: A `list` of template directives.
