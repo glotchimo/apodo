@@ -118,3 +118,35 @@ class Application(Blueprint):
                             local_hooks.setdefault(hook.event_type, []).append(hook)
 
                 setattr(blueprint, name, local_hooks)
+
+    def _register_routes(self, blueprint, prefixes=None):
+        """ Registers routes from a Blueprint.
+
+        This method first saerches through the provided prefixes for nested blueprints,
+        and recursively calls itself with those objects. Following that, the blueprint's
+        app is set as well as any routes it has. Then, the routes are added to the app's
+        router.
+
+        :param blueprint: A Blueprint object.
+        :param prefixes: A dict of prefixes.
+        """
+        for name, pattern in prefixes.items():
+            for nested_blueprint, nested_prefixes in blueprint.blueprints.items():
+                for nested_name, nested_pattern in nested_prefixes.items():
+                    if name and nested_name:
+                        merged_prefixes = {
+                            name + ":" + nested_name: pattern + nested_pattern
+                        }
+                    else:
+                        merged_prefixes = {
+                            name or nested_name: pattern + nested_pattern
+                        }
+
+                    self._register_routes(nested_blueprint, prefixes=merged_prefixes)
+
+        blueprint.app = self
+        for route in blueprint.routes:
+            route.app = self.app
+            route.limits = route.limits or self.limits
+
+            self.router.add_route(route, prefixes=prefixes)
