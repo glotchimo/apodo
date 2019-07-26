@@ -171,3 +171,25 @@ class Application(Blueprint):
                 return True
 
         return bool(self.hooks.get(hook_id) or self.async_hooks.get(hook_id))
+
+    async def call_hook(self, hook_id, components, route=None):
+        """ Calls a given hook, returning a response if caught.
+
+        This method collects the existing app, or an additional route and
+        the existing app, then iterates through the hooks and calls the handler
+        if the given hook is found. If the hook is not found, or the response fails,
+        it returns None.
+
+        :param hook_id: The int ID of a given hook.
+        :param components: List of existing components to pull hooks from.
+        :param route: (optional) An additional Route object to call hooks on.
+
+        :return response: (optional) A Response object.
+        """
+        objects = (route.parent, self) if route and route.parent != self else (self,)
+        for object in objects:
+            for hook in object.hooks.get(hook_id, ()):
+                return hook.call_handler(components) or None
+
+            for hook in object.async_hooks.get(hook_id, ()):
+                return await hook.call_handler(components) or None
