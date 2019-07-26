@@ -193,3 +193,37 @@ class Application(Blueprint):
 
             for hook in object.async_hooks.get(hook_id, ()):
                 return await hook.call_handler(components) or None
+
+    def clean_up(self):
+        """ Kills all active worker processes. """
+        for process in self.workers:
+            process.terminate()
+
+        self.running = False
+
+    def url_for(self, _name, _external=False, *args, **kwargs):
+        """ Creates a URL from a given route name.
+
+        This method constructs a URL from a given route name, and will build a full
+        URL from server_name and url_scheme if _external is set to True.
+
+        :param _name: The str name of a route.
+        :param _external: A bool determining the use of an external URL.
+
+        :return url: A str URL.
+        """
+        if not self.initialized:
+            raise ValueError("Routes are not yet registered.")
+
+        route = self.router.reverse_index.get(_name)
+        if not route:
+            raise ReverseNotFound(_name)
+
+        root = ""
+        if _external:
+            if not self.server_name or not self.url_scheme:
+                raise Exception("Please configure the server_name and url_scheme.")
+
+            root = self.url_scheme + "://" + self.server_name
+
+        return root + route.build_url(*args, **kwargs).decode()
