@@ -70,27 +70,22 @@ For class docstrings, comments should look like this:
 
 For method docstrings, comments should look like this:
 
-    """ Does an action.
+    """ Does an action. (short description)
 
     This method does things and stuff. Note that it does things
-    in a certain way as of version 0.1.0.
+    in a certain way as of version 0.1.0. (long description)
 
-    :param thing: A thing with which to do stuff.
-    :param stuff: (optional) Some stuff with which to do things.
+    :param thing: A thing (str) with which to do stuff.
+    :param stuff: (optional) Some stuff (dict) with which to do things. (parameters w/ type intentions)
 
-    :return product:
+    :return product: A Product object. (return w/ type intention)
     """
 
 Other one-line commenting should be kept to a mininum but used effectively and concisely when necessary.
 
-### Type checking
+### Typing
 
-We will use type checking on all method declarations, as implemented in PEP 484. Here is an example of what that looks like:
-
-    async def method(self, thing: str = None, stuff: str = None) => Product:
-        # code
-
-All parameters as well as the return type should be annotated.
+We will *not* use type hints. While helpful to an extent, type hints in Python dirty code significantly, and typing can be notated in docstrings. So, the parameter and return lines in all method docstrings MUST denote the intended type of the given variables.
 
 ## Let's build together.
 The Vibora framework, while intelligently conceptualized and designed, lacked the community and structure that an open-source project needs to thrive. While a lot of brilliant engineers have created great open-source software mostly on their own, it's more meaningful and enriching for all involved when it becomes a community effort.
