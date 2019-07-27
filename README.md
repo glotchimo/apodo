@@ -44,6 +44,8 @@ Contributions to major projects will be tagged accordingly and tracked automatic
 
 ## Development Guidelines
 
+First of all, be aware that we will utilize git hooks to automate and standardize some of the development process. Right now, the existing hook script is on `pre-commit`, and formats the code with black, and checks it with flake8.
+
 ### Comments/docstrings
 
 As it stands, commenting and style consistency is woefully lacking in the Vibora library, and those are two things being addressed in this port before we begin work on features/fixes. We will use out-of-the-box `black` for formatting, and comment styling will be as follows.
