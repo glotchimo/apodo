@@ -44,6 +44,8 @@ Contributions to major projects will be tagged accordingly and tracked automatic
 
 ## Development Guidelines
 
+First of all, be aware that we will utilize git hooks to automate and standardize some of the development process. Right now, the existing hook script is on `pre-commit`, and formats the code with black, and checks it with flake8.
+
 ### Comments/docstrings
 
 As it stands, commenting and style consistency is woefully lacking in the Vibora library, and those are two things being addressed in this port before we begin work on features/fixes. We will use out-of-the-box `black` for formatting, and comment styling will be as follows.
@@ -64,8 +66,8 @@ For class docstrings, comments should look like this:
     This class does things that it does. We've written it to do
     actions and carry out tasks. (long description)
 
-    :param *args: arguments.
-    :param **kwargs: keyword arguments. (parameters)
+    :param `*args`: arguments.
+    :param `**kwargs`: keyword arguments. (parameters)
     """
 
 For method docstrings, comments should look like this:
@@ -75,13 +77,15 @@ For method docstrings, comments should look like this:
     This method does things and stuff. Note that it does things
     in a certain way as of version 0.1.0. (long description)
 
-    :param thing: A thing (str) with which to do stuff.
-    :param stuff: (optional) Some stuff (dict) with which to do things. (parameters w/ type intentions)
+    :param `thing`: A thing (`str`) with which to do stuff.
+    :param `stuff`: (optional) Some stuff (`dict`) with which to do things. (parameters w/ type intentions)
 
-    :return product: A Product object. (return w/ type intention)
+    :return `product`: A `Product` object. (return w/ type intention)
     """
 
 Other one-line commenting should be kept to a mininum but used effectively and concisely when necessary.
+
+Note that parameter names and object names go in backticks (``) to increase readability in text editors. This is a soft rule.
 
 ### Typing
 
