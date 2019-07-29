@@ -47,7 +47,6 @@ class Headers:
     def eval(self):
         """ Evaluates and stores raw header values. """
         self.values = {}
-
         while self.raw:
             header = self.raw.pop()
             self.values[header[0].decode("utf-8").lower()] = header[1].decode(
