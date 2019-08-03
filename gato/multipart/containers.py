@@ -99,6 +99,29 @@ class MultipartEncoder:
         self.loop = loop
         self.encoding = encoding
 
+    def __iter__(self):
+        if self.evaluated:
+            raise Exception("Streaming encoder cannot be evaluated twice.")
+
+        for name, value in self.params.items():
+            header = (
+                self.delimiter
+                + b"\r\n"
+                + self.create_headers(name, value)
+                + b"\r\n\r\n"
+            )
+
+            yield header
+
+            for chunk in self.stream_value(value):
+                yield chunk
+
+            yield b"\r\n"
+
+        yield self.delimiter + b"--"
+
+        self.evaluated = True
+
     def create_headers(self, name, value):
         """ Creates a serialized set of multipart headers.
 
@@ -141,24 +164,3 @@ class MultipartEncoder:
                 yield value.encode(self.encoding)
             else:
                 yield value
-
-    def __iter__(self):
-        """
-
-        :return:
-        """
-        if self.evaluated:
-            raise Exception("Streaming encoder cannot be evaluated twice.")
-        for name, value in self.params.items():
-            header = (
-                self.delimiter
-                + b"\r\n"
-                + self.create_headers(name, value)
-                + b"\r\n\r\n"
-            )
-            yield header
-            for chunk in self.stream_value(value):
-                yield chunk
-            yield b"\r\n"
-        yield self.delimiter + b"--"
-        self.evaluated = True
