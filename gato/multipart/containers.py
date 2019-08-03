@@ -75,13 +75,22 @@ class FileUpload:
 
 
 class MultipartEncoder:
+    """ Implements the `MultipartEncoder` utility class.
+
+    :param `delimiter`: A `bytes` representation of a `delimiter`.
+    :param `params`: A `dict` of parameters.
+    :param `chunk_size`: The int size of the given chunk.
+    :param `loop`: An async value `loop` to run through.
+    :param `encoding`: A `str` encoding, default being `utf-8`.
+    """
+
     def __init__(
         self,
-        delimiter: bytes,
-        params: dict,
-        chunk_size: int = 1 * 1024 * 1024,
+        delimiter,
+        params,
+        chunk_size=1 * 1024 * 1024,
         loop=None,
-        encoding: str = "utf-8",
+        encoding="utf-8",
     ):
         self.delimiter = b"--" + delimiter
         self.params = params
@@ -90,23 +99,22 @@ class MultipartEncoder:
         self.loop = loop
         self.encoding = encoding
 
-    def create_headers(self, name: str, value) -> bytes:
-        """
+    def create_headers(self, name, value):
+        """ Creates a serialized set of multipart headers.
 
-        :param name:
-        :param value:
-        :return:
-        """
-        if isinstance(value, FileUpload):
-            return f'Content-Disposition: form-data; name="{name}"; filename="{value.name}"'.encode(
-                self.encoding
-            )
-        else:
-            return f'Content-Disposition: form-data; name="{name}"'.encode(
-                self.encoding
-            )
+        :param `name`: The `str` name of the file.
+        :param `value`: A `FileUpload` object with file data.
 
-    def stream_value(self, value) -> bytes:
+        :return: A `str` representation of the headers.
+        """
+        headers = {"Content-Dispositon": "form-data", "name": name}
+
+        if type(value) is FileUpload:
+            headers["filename"] = value.name
+
+        return str(headers).encode(self.encoding)
+
+    def stream_value(self, value):
         """
 
         :param value:
