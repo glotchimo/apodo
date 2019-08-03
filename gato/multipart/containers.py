@@ -5,9 +5,9 @@ gato.multipart.containers
 This module implements some multipart-specific custom container classes.
 """
 
-import inspect
-import uuid
 import os
+import uuid
+import inspect
 from io import BytesIO
 
 
@@ -103,7 +103,7 @@ class MultipartEncoder:
         """ Creates a serialized set of multipart headers.
 
         :param `name`: The `str` name of the file.
-        :param `value`: A `FileUpload` object with file data.
+        :param `value`: An object with file data.
 
         :return: A `str` representation of the headers.
         """
@@ -115,27 +115,29 @@ class MultipartEncoder:
         return str(headers).encode(self.encoding)
 
     def stream_value(self, value):
-        """
+        """ Yields a stream of the file value.
 
-        :param value:
-        :return:
+        :param `value`: An object with file data.
+
+        :return: A yielded stream of file data.
         """
-        if isinstance(value, FileUpload):
+        if type(value) is FileUpload:
             while True:
-                if value.is_async:
-                    chunk = self.loop.run_until_complete(
-                        value.f.read(self.chunk_size)
-                    )
-                else:
-                    chunk = value.f.read(self.chunk_size)
+                chunk = (
+                    self.loop.run_until_complete(value.f.read(self.chunk_size))
+                    if value.is_async
+                    else value.f.read(self.chunk_size)
+                )
+
                 size = len(chunk)
-                if size == 0:
+                if size:
+                    yield chunk
+                else:
                     break
-                yield chunk
         else:
-            if isinstance(value, int):
+            if type(value) is int:
                 yield str(value).encode()
-            elif isinstance(value, str):
+            elif type(value) is str:
                 yield value.encode(self.encoding)
             else:
                 yield value
