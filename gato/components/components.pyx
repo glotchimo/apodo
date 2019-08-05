@@ -4,6 +4,16 @@ from ..exceptions import MissingComponent
 
 
 class Component:
+    """
+    The `Component` class validates components for use in the `ComponentEngine`,
+    and through the `build` method returns a component ready for use.
+    :param: `builder` is a function component from which classes will be returned for use.
+    The function must be annotated with the return type (which is the class returned).
+    :param: `cache` is a `bool` which determines whether or not the class stored in component
+    will be stored as a variable.
+    :param: `prebuilt` is a class passed directly into the `Component` class. It is
+    cached by definition.
+    """
 
     __slots__ = ('builder', 'cache_enabled', 'cache')
 
@@ -21,7 +31,7 @@ class Component:
 
     def build(self):
         """
-        :return:
+        :return: 
         """
         if self.cache is not None:
             return self.cache
@@ -67,7 +77,7 @@ cdef class ComponentsEngine:
     @staticmethod
     def search_type(dict index, object required_type):
         element = None
-        for key, value in index.items():
+        for key in index.keys():
             if issubclass(key, required_type):
                 if element is None:
                     element = key
