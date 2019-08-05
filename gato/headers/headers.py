@@ -9,7 +9,9 @@ This module implements the custom Headers class.
 class Headers:
     """ Implements `Headers`.
 
-    :param `raw`: a raw `list` of headers to parse.
+    :param `raw`: a raw `list` of headers to parse. These headers should appear
+                  in `list` pairs, with index 0 being the name of the header,
+                  and index 1 being the value of the header.
     """
 
     def __init__(self, raw=None):
