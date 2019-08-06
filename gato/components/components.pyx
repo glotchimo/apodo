@@ -16,13 +16,15 @@ class Component:
     cached by definition.
     """
 
-    __slots__ = ('builder', 'cache_enabled', 'cache')
+    __slots__ = ('builder', 'cache_enabled', 'cache', 'type')
 
     def __init__(self, builder: Callable = None, cache=False, prebuilt=None):
         try:
             if builder:
                 self.type = get_type_hints(builder)['return']
-            elif not prebuilt:
+            elif prebuilt:
+                self.type = prebuilt.__class__.__name__
+            else:
                 raise ValueError('You need to pass either builder or prebuilt param.')
             self.builder = builder
             self.cache_enabled = cache
