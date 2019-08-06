@@ -53,12 +53,11 @@ class Component:
         """
         if self.cache is not None:
             return self.cache
-
-        if self.cache_enabled:
+        elif self.cache_enabled:
             self.cache = self.builder()
             return self.cache
-
-        return self.builder()
+        else:
+            return self.builder()
 
 
 cdef class ComponentsEngine:
