@@ -3,10 +3,17 @@ The async Python web framework that acts fast and lands on its feet.
 
 Gato is an asynchronous Python web framework that models the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
 
-## Goals
+## Framework Goals
 - Go quick
 - Run clean
 - Stay simple
+
+## Project Goals
+- Work together
+- Generate and support cool ideas
+- Learn and grow as a team
+
+"Your team's strength is not a function of the talent of individual members. It's a function of their collaboration, tenacity, and mutual respect."
 
 ## Development Plan
 Gato is going to be loosely derived from the design goals of the Vibora framework, and to execute this, we will port source from a legacy package of Vibora module-by-module, redesigning as we go.
