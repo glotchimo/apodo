@@ -1,3 +1,10 @@
+"""
+gato.components.components.pyx
+~~~~~~~~~~~~~~~~~~~~~~~~
+This module implements the `Component` and `ComponentEngine` classes.
+Components are gato's way of providing universal object without making them global.
+"""
+
 from typing import Callable, Type, get_type_hints
 from inspect import isclass
 from ..exceptions import MissingComponent
