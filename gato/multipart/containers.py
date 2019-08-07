@@ -61,8 +61,6 @@ class FileUpload:
             self.file = file
         elif path:
             self.file = open(path, "rb")
-            if not self.name:
-                self.name = os.path.basename(path)
         elif content:
             self.file = BytesIO(initial_bytes=content)
         elif iterable:
