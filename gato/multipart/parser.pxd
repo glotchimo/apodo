@@ -2,7 +2,7 @@
 gato.multipart.parser.pxd
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This module implements the Cython builds of the SmartFile
+This module implements the Cython headers of the SmartFile
 and MultipartParser classes.
 """
 

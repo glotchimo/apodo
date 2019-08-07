@@ -157,6 +157,7 @@ class MultipartEncoder:
                     yield chunk
                 else:
                     break
+
         else:
             if type(value) is int:
                 yield str(value).encode()
