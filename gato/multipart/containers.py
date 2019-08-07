@@ -20,6 +20,7 @@ class BufferedIterable:
         self.buffer = bytearray()
 
     def read(self, size):
+        """ Reads and returns the contents of the buffer. """
         while len(self.buffer) < size:
             self.buffer.extend(self.cursor.__next__())
 
