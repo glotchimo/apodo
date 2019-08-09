@@ -5,7 +5,6 @@ gato.multipart.containers
 This module implements some multipart-specific custom container classes.
 """
 
-import os
 import uuid
 import inspect
 from io import BytesIO
@@ -146,9 +145,9 @@ class MultipartEncoder:
         if type(value) is FileUpload:
             while True:
                 chunk = (
-                    self.loop.run_until_complete(value.f.read(self.chunk_size))
+                    self.loop.run_until_complete(value.file.read(self.chunk_size))
                     if value.is_async
-                    else value.f.read(self.chunk_size)
+                    else value.file.read(self.chunk_size)
                 )
 
                 size = len(chunk)
