@@ -298,7 +298,7 @@ cdef class MultipartParser:
         """
         if value[0] == 37 or value[0] == 34:
             value = value[1:]
-        elif value[-1] == 37 or value[-1] == 34:
+        if value[-1] == 37 or value[-1] == 34:
             value = value[:-1]
 
         return value
