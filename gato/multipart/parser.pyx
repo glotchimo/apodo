@@ -289,6 +289,9 @@ cdef class MultipartParser:
     cdef inline bytearray clean_value(self, bytearray value):
         """ Cleans a `value`.
 
+        This method strips quotes and percents (34 and 37 ASCII, respectively)
+        from the `value`.
+
         :param `value`: The `bytearray` `value` to clean.
 
         :return: The cleaned `value`, still a `bytearray`.
