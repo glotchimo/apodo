@@ -420,7 +420,7 @@ cdef class MultipartParser:
         return parsed_values
 
     @staticmethod
-    cdef inline bytearray clean_value(self, bytearray value):
+    cdef inline bytearray clean_value(bytearray value):
         """ Cleans a `value`.
 
         This method strips quotes and percents (34 and 37 ASCII, respectively)
