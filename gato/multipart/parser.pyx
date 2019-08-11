@@ -286,23 +286,6 @@ cdef class MultipartParser:
         self.status = EXPECTING_BOUNDARY
         self.current_buffer = None
 
-    cdef inline bytearray clean_value(self, bytearray value):
-        """ Cleans a `value`.
-
-        This method strips quotes and percents (34 and 37 ASCII, respectively)
-        from the `value`.
-
-        :param `value`: The `bytearray` `value` to clean.
-
-        :return: The cleaned `value`, still a `bytearray`.
-        """
-        if value[0] == 37 or value[0] == 34:
-            value = value[1:]
-        if value[-1] == 37 or value[-1] == 34:
-            value = value[:-1]
-
-        return value
-
     cdef void parse_header(self, bytearray header):
         """ Parses a given `header`.
 
@@ -435,3 +418,21 @@ cdef class MultipartParser:
             parsed_values[key] = file.consume()
 
         return parsed_values
+
+    @staticmethod
+    cdef inline bytearray clean_value(self, bytearray value):
+        """ Cleans a `value`.
+
+        This method strips quotes and percents (34 and 37 ASCII, respectively)
+        from the `value`.
+
+        :param `value`: The `bytearray` `value` to clean.
+
+        :return: The cleaned `value`, still a `bytearray`.
+        """
+        if value[0] == 37 or value[0] == 34:
+            value = value[1:]
+        if value[-1] == 37 or value[-1] == 34:
+            value = value[:-1]
+
+        return value
