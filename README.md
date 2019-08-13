@@ -1,7 +1,7 @@
 # Gato
 The async Python web framework that acts fast and lands on its feet.
 
-Gato is an asynchronous Python web framework that models the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+Gato is an asynchronous Python web framework that derives from the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
 
 ## Framework Goals
 - Go quick
@@ -16,46 +16,35 @@ Gato is an asynchronous Python web framework that models the Vibora framework, i
 "Your team's strength is not a function of the talent of individual members. It's a function of their collaboration, tenacity, and mutual respect."
 
 ## Development Plan
-Gato is going to be loosely derived from the design goals of the Vibora framework, and to execute this, we will port source from a legacy package of Vibora module-by-module, redesigning as we go.
+Gato, while derived from the Vibora framework, will be built with a new design philosophy in mind. We will reference the old source of Vibora as we build, but only for some lower-level concepts.
 
-The first phase of alpha development will be the porting of the entire Vibora library into Gato. This will not simply be a copy-paste job; the goal of this process is to clean and optimize the modules that are coming over to make the future of development simpler and easier.
+A major pitfall of Vibora was its lack of strict system design guidelines, as well of its lack of documentation. Solid design is to be held in high regard along with functional speed, and design should not and will not be compromised for functional speed. Building a spaghetti dinner that runs very quickly is fine, but building a well-designed, fast, and scalable web framework is what we're more interested in.
 
-All port changes will be commited to a development branch, and once the entire port is complete, then development will be merged onto master. After this has been completed, development merges to master will occur on a release basis.
-
-Another thing to note is that, until the entire port is complete, there will be no need or application for tests, as we will not have a complete library to work with, and many modules will have missing first-party dependencies.
-
-Once all source has been ported over, we will begin the testing/monitoring and fixing processes. There are a few major bottlenecks and design flaws that will be addressed once things are running smoothly. Those targets will be finalized once the port is complete.
+The plan for Gato is to start with base functionality, and iteratively add features, with Vibora as a functional reference.
 
 ## Development Pipeline
 
-Pipeline will look slightly different from phase one to phase two.
+As one of our goals is to work together, the development pipeline is structured knowing that all may not be comfortable/confident enough with Cython and lower-level concepts to be able to contribute to the core system.
 
-### Phase one process
+### Vibora Analysis
+This project is for those mentioned above. As the core team works, it is necessary that we are able to reference Vibora. Vibora is woefully lacking in its inline and online documentation, and a way for newcomers to contribute is by digging through the source in the `legacy` package, figuring out what it does, and writing in docstrings/refactoring illegible code. This process will not only support and speed up the development of Gato, but also equip newcomers with tons of knowledge about how this type of web framework operates under the hood.
 
-1. Create an issue for the module you're porting. Tag the issue with `port`, and it will automatically be added to the port project board.
-2. Study the module, write it over piece-by-piece, with style and commenting guidelines in mind, and create a PR attached to your issue.
-3. Your PR will be reviewed by the core team, and merged.
+To contribute in this way, all you have to do is fork with the branch schema of `v-rewrite-<module or package name>` and submit a PR once you're done adding docstrings and refactoring illegible code. Your PR must pass one review before it is merged to `dev`.
 
-Some things to note:
+### Core Development
+This project is for those experienced in Python, with knowledge of how it works as a language, as well as C concepts like Cython and other C-optimised practices and libraries, as well as sufficient understanding of web technologies and practices.
 
-- Module functionality doesn't need to and shouldn't always be altered. The changes that are made in the port should be to commenting, style, and syntax. Major functionality changes will be carried out after the port is complete.
-- While you should avoid doing so, if you change module, class, method, or variable names, you MUST propagate those changes through other files.
+In order to contribute this way, you must be in the Gato Slack group and approved as a contributor on the core repository.
 
-### Phase two+ process (standard post-port development procedure)
-
-1. Create/address an issue. Name your branch in the format of `port-<module name>`.
-2. Implement a fix, and open a PR. Your PR must pass all existing tests, as well as coverage for new code.
-3. Receive at least one review from any contributor, and merge.
-
-Contributions to major projects will be tagged accordingly and tracked automatically on project boards.
+Contribution to the core system will be heavily discussion-based until we release a first iteration, after which the iterative feature adds will begin. Until then, contact Elliott about joining the core team, and we'll go from there.
 
 ## Development Guidelines
 
-First of all, be aware that we will utilize git hooks to automate and standardize some of the development process. Right now, the existing hook script is on `pre-commit`, and formats the code with black, and checks it with flake8.
+Be aware that we utilize git hooks to automate and standardize some of the development process. We will conform to our written configurations of the `black` formatter, and of the `flake8` linter.
 
 ### Comments/docstrings
 
-As it stands, commenting and style consistency is woefully lacking in the Vibora library, and those are two things being addressed in this port before we begin work on features/fixes. We will use out-of-the-box `black` for formatting, and comment styling will be as follows.
+As it stands, commenting and style consistency is woefully lacking in the Vibora library, and those are two things being addressed in this port before we begin work on features/fixes. We will use `black` for formatting, and comment styling will be as follows.
 
 For module docstrings, comments should look like this:
 
@@ -63,18 +52,18 @@ For module docstrings, comments should look like this:
     gato.utils.module (modular path)
     ~~~~~~~~~~~~~~~~~
 
-    This module implements the implementation of a module. (module description)
+    This module implements the `Class` class, and other stuff. (module description)
     """
 
 For class docstrings, comments should look like this:
 
-    """ Implements its class. (short description)
+    """ Implements the `Class` class. (short description)
 
     This class does things that it does. We've written it to do
     actions and carry out tasks. (long description)
 
-    :param `*args`: arguments.
-    :param `**kwargs`: keyword arguments. (parameters)
+    :param `*args`: These are some arguments.
+    :param `**kwargs`: These are some keyword arguments. (parameters)
     """
 
 For method docstrings, comments should look like this:
@@ -92,7 +81,10 @@ For method docstrings, comments should look like this:
 
 Other one-line commenting should be kept to a mininum but used effectively and concisely when necessary.
 
-Note that parameter names and object names go in backticks (``) to increase readability in text editors. This is a soft rule.
+#### Soft Rules:
+- Put backticks (``) around object and variable names.
+- Wrap comments to 88 characters.
+- Capitalize the first letters of parameter and return descriptions.
 
 ### Typing
 
@@ -103,4 +95,4 @@ The Vibora framework, while intelligently conceptualized and designed, lacked th
 
 A major goal of this project is to cultivate an efficient and involved development/contribution pipeline, rather than an isolated and centralized dependent workflow for few.
 
-This project is brand new and still in the planning phase. Join us on the [slack channel](https://join.slack.com/t/gatoproject/shared_invite/enQtNzA1NjcwMDU4MDA2LWIyZWFmNDY2YzEyM2RmYWQ2OWM3MzQyN2QwYzllYzg3OGRhMzJkOWIwMjA2OTEyOGVkYTliZTA4OWQwMDI1Y2U) to get involved in the decision-making process as we work through the details.
+This project needs developers! Join us on the [slack channel](https://join.slack.com/t/gatoproject/shared_invite/enQtNzA1NjcwMDU4MDA2LWIyZWFmNDY2YzEyM2RmYWQ2OWM3MzQyN2QwYzllYzg3OGRhMzJkOWIwMjA2OTEyOGVkYTliZTA4OWQwMDI1Y2U)

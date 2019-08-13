@@ -1,0 +1,5 @@
+.vscode
+.circleci
+
+*.pyc
+__pycache__
