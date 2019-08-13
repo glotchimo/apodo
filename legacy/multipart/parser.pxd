@@ -1,4 +1,10 @@
+"""
+gato.multipart.parser.pxd
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
+This module implements the Cython headers of the SmartFile
+and MultipartParser classes.
+"""
 
 cdef class SmartFile:
 

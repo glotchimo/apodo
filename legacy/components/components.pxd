@@ -1,4 +1,9 @@
+"""
+gato.components.components.pxd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+This module implements the Cython build of the `ComponentsEngine` class.
+"""
 
 cdef class ComponentsEngine:
 

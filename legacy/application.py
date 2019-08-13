@@ -1,5 +1,13 @@
+"""
+gato.application
+~~~~~~~~~~~~~~~~
+
+This module implements the `Application` class.
+"""
+
 from itertools import chain
 from typing import Callable, Type, List, Optional
+
 from .request import Request
 from .blueprints import Blueprint
 from .sessions import SessionEngine
@@ -9,41 +17,45 @@ from .responses import Response
 from .components import ComponentsEngine
 from .exceptions import ReverseNotFound, DuplicatedBlueprint
 from .templates.engine import TemplateEngine
-from .templates.extensions import ViboraNodes
+from .templates.extensions import GatoNodes
 from .static import StaticHandler
 from .limits import ServerLimits
 
 
 class Application(Blueprint):
+    """ Implements `Application`.
+
+    This is a subclass of `Blueprint`, which defines the base utilities
+    for the app, with `Application` managing state and session.
+
+    :param `template_dirs`: A `list` of template directives.
+    :param `router_strategy`: A `RouterStrategy` object.
+    :param `sessions_engine`: A `SessionEngine` object.
+    :param `server_name`: A `str` representing the name of the server.
+    :param `url_scheme`: A `str` repressenting the URL scheme, default being http.
+    :param `static`: A `StaticHandler` object.
+    :param `log_handler`: A `Callable object`.
+    :param `server_limits`: A `ServerLimits` object.
+    :param `route_limits`: A `RouteLimits` object.
+    :param `request_class`: A `Request` class.
+    """
 
     current_time: str = None
 
     def __init__(
         self,
-        template_dirs: List[str] = None,
+        template_dirs,
         router_strategy=RouterStrategy.CLONE,
-        sessions_engine: SessionEngine = None,
-        server_name: str = None,
-        url_scheme: str = "http",
-        static: StaticHandler = None,
-        log_handler: Callable = None,
-        access_logs: bool = None,
-        server_limits: ServerLimits = None,
-        route_limits: RouteLimits = None,
-        request_class: Type[Request] = Request,
+        sessions_engine=None,
+        server_name=None,
+        url_scheme="http",
+        static=None,
+        log_handler=None,
+        access_logs=None,
+        server_limits=None,
+        route_limits=None,
+        request_class=Request,
     ):
-        """
-
-        :param template_dirs:
-        :param router_strategy:
-        :param sessions_engine:
-        :param server_name:
-        :param url_scheme:
-        :param static:
-        :param log_handler:
-        :param server_limits:
-        :param route_limits:
-        """
         super().__init__(template_dirs=template_dirs, limits=route_limits)
         self.debug_mode = False
         self.test_mode = False
@@ -51,7 +63,8 @@ class Application(Blueprint):
         self.url_scheme = url_scheme
         self.handler = Connection
         self.router = Router(strategy=router_strategy)
-        self.template_engine = TemplateEngine(extensions=[ViboraNodes(self)])
+        self.session_engine = sessions_engine
+        self.template_engine = TemplateEngine(extensions=[GatoNodes(self)])
         self.static = static or StaticHandler([])
         self.connections = set()
         self.workers = []
@@ -64,57 +77,66 @@ class Application(Blueprint):
         self.running = False
         if not issubclass(request_class, Request):
             raise ValueError(
-                "class_obj must be a child of the Vibora Request class. "
-                "(from vibora.request import Request)"
+                "request_class must be a child of the Gato Request class. "
+                "(from gato.request import Request)"
             )
         self.request_class = request_class
-        self.session_engine = sessions_engine
         self._test_client = None
 
-    def exists_hook(self, type_id: int) -> bool:
+    def add_blueprint(self, blueprint, prefixes=None):
+        """ Adds a blueprint to the application.
+
+        This method ensures that a given blueprint is new, configures its
+        parent and prefixes, registers any existing routes, and then sets up
+        any hooks.
+
+        :param `blueprint`: A `Blueprint` object to add.
+        :param `prefixes`: A `dict` of prefixes.
         """
+        if blueprint.parent:
+            raise DuplicatedBlueprint()
+        elif blueprint != self:
+            blueprint.parent = self
 
-        :param type_id:
-        :return:
-        """
+        prefixes = prefixes or {}
 
-        for blueprint in self.blueprints.keys():
-            if bool(blueprint.hooks.get(type_id)):
-                return True
-            if bool(blueprint.async_hooks.get(type_id)):
-                return True
-        return bool(self.hooks.get(type_id) or self.async_hooks.get(type_id))
+        self._register_routes(blueprint, prefixes)
 
-    async def call_hooks(
-        self, type_id: int, components, route=None
-    ) -> Optional[Response]:
-        """
+        self.blueprints[blueprint] = prefixes
 
-        :param route:
-        :param type_id:
-        :param components:
-        :return:
-        """
-        targets = (route.parent, self) if route and route.parent != self else (self,)
-        for target in targets:
-            for listener in target.hooks.get(type_id, ()):
-                response = listener.call_handler(components)
-                if response:
-                    return response
-            for listener in target.async_hooks.get(type_id, ()):
-                response = await listener.call_handler(components)
-                if response:
-                    return response
+        if blueprint != self:
+            for collection, name in (
+                (blueprint.hooks, "hooks"),
+                (blueprint.async_hooks, "async_hooks"),
+            ):
+                local_hooks = {}
+                for hook_type, hooks in collection.items():
+                    for hook in hooks:
+                        if not hook.local:
+                            self.add_hook(hook)
+                        else:
+                            local_hooks.setdefault(hook.event_type, []).append(
+                                hook
+                            )
 
-    def __register_blueprint_routes(self, blueprint: Blueprint, prefixes: dict = None):
-        """
+                setattr(blueprint, name, local_hooks)
 
-        :param blueprint:
-        :param prefixes:
-        :return:
+    def _register_routes(self, blueprint, prefixes=None):
+        """ Registers routes from a `Blueprint`.
+
+        This method first saerches through the provided prefixes for nested blueprints,
+        and recursively calls itself with those objects. Following that, the blueprint's
+        app is set as well as any routes it has. Then, the routes are added to the app's
+        router.
+
+        :param `blueprint`: A `Blueprint` object.
+        :param `prefixes`: A `dict` of prefixes.
         """
         for name, pattern in prefixes.items():
-            for nested_blueprint, nested_prefixes in blueprint.blueprints.items():
+            for (
+                nested_blueprint,
+                nested_prefixes,
+            ) in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
                     if name and nested_name:
                         merged_prefixes = {
@@ -124,87 +146,95 @@ class Application(Blueprint):
                         merged_prefixes = {
                             name or nested_name: pattern + nested_pattern
                         }
-                    self.__register_blueprint_routes(
+
+                    self._register_routes(
                         nested_blueprint, prefixes=merged_prefixes
                     )
+
         blueprint.app = self
         for route in blueprint.routes:
             route.app = self.app
             route.limits = route.limits or self.limits
+
             self.router.add_route(route, prefixes=prefixes)
 
-    def add_blueprint(self, blueprint, prefixes: dict = None):
+    def check_hook(self, hook_id):
+        """ Checks for the existence of a given hook.
+
+        This method first searches any nested blueprints and returns
+        at first discovery of the hook, then defaults to checking hook collections
+        on the blueprint.
+
+        :param `hook_id`: The `int` ID of a given hook.
+
+        :return: `Boolean` depending on whether or not the given hook was found.
         """
 
-        :param blueprint:
-        :param prefixes:
-        :return:
+        for blueprint in self.blueprints.keys():
+            if bool(blueprint.hooks.get(hook_id)):
+                return True
+
+            if bool(blueprint.async_hooks.get(hook_id)):
+                return True
+
+        return bool(self.hooks.get(hook_id) or self.async_hooks.get(hook_id))
+
+    async def call_hook(self, hook_id, components, route=None):
+        """ Calls a given hook, returning a response if caught.
+
+        This method collects the existing app, or an additional route and
+        the existing app, then iterates through the hooks and calls the handler
+        if the given hook is found. If the hook is not found, or the response fails,
+        it returns `None`.
+
+        :param `hook_id`: The `int` ID of a given hook.
+        :param `components`: `List` of existing components to pull hooks from.
+        :param `route`: (optional) An additional `Route` object to call hooks on.
+
+        :return `response`: (optional) A `Response` object.
         """
-        if blueprint.parent:
-            raise DuplicatedBlueprint(
-                "You cannot add blueprint twice. Use more prefixes or a different hierarchy."
-            )
+        objects = (
+            (route.parent, self) if route and route.parent != self else (self,)
+        )
+        for object in objects:
+            for hook in object.hooks.get(hook_id, ()):
+                return hook.call_handler(components) or None
 
-        if blueprint != self:
-            blueprint.parent = self
-
-        if prefixes is None:
-            prefixes = {"": ""}
-
-        self.__register_blueprint_routes(blueprint, prefixes)
-
-        self.blueprints[blueprint] = prefixes
-
-        # Non-Local listeners are removed from the blueprint because they are actually global hooks.
-        if blueprint != self:
-            for collection, name in (
-                (blueprint.hooks, "hooks"),
-                (blueprint.async_hooks, "async_hooks"),
-            ):
-                local_listeners = {}
-                for listener_type, listeners in collection.items():
-                    for listener in listeners:
-                        if not listener.local:
-                            self.add_hook(listener)
-                        else:
-                            local_listeners.setdefault(listener.event_type, []).append(
-                                listener
-                            )
-                setattr(blueprint, name, local_listeners)
+            for hook in object.async_hooks.get(hook_id, ()):
+                return await hook.call_handler(components) or None
 
     def clean_up(self):
-        """
-
-        :return:
-        """
+        """ Kills all active worker processes. """
         for process in self.workers:
             process.terminate()
+
         self.running = False
 
-    def url_for(self, _name: str, _external=False, *args, **kwargs) -> str:
-        """
+    def url_for(self, _name, _external=False, *args, **kwargs):
+        """ Creates a URL from a given route name.
 
-        :param _name:
-        :param _external:
-        :param args:
-        :param kwargs:
-        :return:
+        This method constructs a URL from a given route name, and will build a full
+        URL from server_name and url_scheme if _external is set to True.
+
+        :param `_name`: The `str` name of a route.
+        :param `_external`: A `bool` determining the use of an external URL.
+
+        :return url: A str URL.
         """
         if not self.initialized:
-            raise ValueError(
-                "Routes are not registered yet. Please run Vibora or call app.initialize()."
-            )
+            raise ValueError("Routes are not yet registered.")
+
         route = self.router.reverse_index.get(_name)
         if not route:
             raise ReverseNotFound(_name)
+
         root = ""
         if _external:
             if not self.server_name or not self.url_scheme:
                 raise Exception(
-                    "Please configure the server_name and url_scheme to use external urls."
+                    "Please configure the server_name and url_scheme."
                 )
-            root = self.url_scheme + "://" + self.server_name
-        return root + route.build_url(*args, **kwargs).decode()
 
-    def __del__(self):
-        self.clean_up()
+            root = self.url_scheme + "://" + self.server_name
+
+        return root + route.build_url(*args, **kwargs).decode()

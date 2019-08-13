@@ -1,3 +1,10 @@
+"""
+gato.headers.headers.pxd
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module implements the Cython build of the custom Headers class.
+"""
+
 # cython: language_level=3, boundscheck=False, wraparound=False, annotation_typing=False
 import cython
 
