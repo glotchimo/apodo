@@ -15,7 +15,7 @@ black = "=19.3b0"
 flake8 = "^3.7"
 
 [tool.black]
-line-length = 79
+line-length = 88
 include = '\.pyx?$'
 
 [build-system]
