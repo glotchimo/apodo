@@ -88,7 +88,7 @@ Other one-line commenting should be kept to a mininum but used effectively and c
 
 ### Typing
 
-We will *not* use type hints. While helpful to an extent, type hints in Python dirty code significantly, and typing can be notated in docstrings. So, the parameter and return lines in all method docstrings MUST denote the intended type of the given variables.
+Use type hints. Always. Everywhere.
 
 ## Let's build together.
 The Vibora framework, while intelligently conceptualized and designed, lacked the community and structure that an open-source project needs to thrive. While a lot of brilliant engineers have created great open-source software mostly on their own, it's more meaningful and enriching for all involved when it becomes a community effort.
