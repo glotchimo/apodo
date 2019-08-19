@@ -3,3 +3,7 @@
 
 *.pyc
 __pycache__
+
+locustfile.py
+
+temp
