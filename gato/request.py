@@ -7,6 +7,8 @@ This module contains the `Request` class.
 
 from asyncio import StreamReader, StreamWriter
 
+from .response import Response
+
 
 class Request:
     """ Implements the `Request` class.
@@ -52,21 +54,16 @@ class Request:
 
     async def view(self):
         """ Executes the user-defined view method. """
-        response = await self.view_function(self)
+        data = await self.view_function(self)
+        response = Response(body=data, headers={"Content-Type": "text/plain"})
+
         await self.send(response)
 
-    async def receive(self):
-        """ Receives new data. """
-        data = self.reader.read(1000)
-        return data
+    async def send(self, response):
+        """ Sends a response. """
+        raw = response.build()
 
-    async def send(self, data):
-        """ Sends new data. """
-        self.writer.write(data)
+        self.writer.write(raw)
         await self.writer.drain()
 
         print(f"{self.method} {self.path} {self.protocol} 200")
-
-    async def close(self):
-        """ Closes the connection. """
-        self.writer.close()

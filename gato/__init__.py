@@ -1,4 +1,4 @@
 __version__ = "0.1.0"
 
-from .gato import Gato
-from .connection import Connection
+from .server import Gato
+from .request import Request

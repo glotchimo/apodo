@@ -1,6 +1,6 @@
 """
-gato.gato
-~~~~~~~~~
+gato.server
+~~~~~~~~~~~
 
 This module contains the `Gato` core server class.
 """
@@ -60,7 +60,7 @@ class Gato:
         :param `reader`: a `StreamReader` object.
         :param `writer`: a `StreamWriter` object.
         """
-        data = await reader.read(1000)
+        data = await reader.read(10000)
         event = self._parse(data.decode())
 
         view = self.views.get(event.get("path"))
