@@ -7,7 +7,7 @@ This module contains the `Gato` core server class.
 
 from asyncio import run, start_server, StreamReader, StreamWriter
 
-from .connection import Connection
+from .request import Request
 
 
 class Gato:
@@ -28,7 +28,6 @@ class Gato:
         self.port = port
 
         self.views = {}
-        self.connections = []
 
     def view(self, path: str):
         """ Registers a view function.
@@ -66,7 +65,7 @@ class Gato:
 
         view = self.views.get(event.get("path"))
 
-        await Connection(view, reader, writer, **event).view()
+        await Request(view, reader, writer, **event).view()
 
     def _parse(self, http: str):
         """ Parses an HTTP string and returns the body of the event.
