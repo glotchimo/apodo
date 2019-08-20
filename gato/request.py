@@ -65,5 +65,3 @@ class Request:
 
         self.writer.write(raw)
         await self.writer.drain()
-
-        print(f"{self.method} {self.path} {self.protocol} 200")
