@@ -55,13 +55,8 @@ class Request:
     async def view(self):
         """ Executes the user-defined view method. """
         data = await self.view_function(self)
-        response = Response(body=data, headers={"Content-Type": "text/plain"})
+        response = Response(
+            self.writer, body=data, headers={"Content-Type": "text/plain"}
+        )
 
-        await self.send(response)
-
-    async def send(self, response):
-        """ Sends a response. """
-        raw = response.build()
-
-        self.writer.write(raw)
-        await self.writer.drain()
+        await response.send(response)

@@ -6,6 +6,7 @@ This module contains the `Response` class.
 """
 
 from datetime import datetime
+from asyncio import StreamWriter
 
 
 class Response:
@@ -18,7 +19,9 @@ class Response:
     :param `body`: (optional) Data to send back in the response body.
     """
 
-    def __init__(self, body=None, headers: dict = None):
+    def __init__(self, writer: StreamWriter, body=None, headers: dict = None):
+        self.writer = writer
+
         self.headers = headers
         self.body = body
 
@@ -35,3 +38,12 @@ class Response:
         raw = bytes(f"HTTP/1.1 200 OK\r\n{header_str}\r\n\r\n{self.body}", "utf-8")
 
         return raw
+
+    async def send(self, response):
+        """ Sends a response. """
+        raw = response.build()
+
+        self.writer.write(raw)
+        await self.writer.drain()
+
+        self.writer.close()
