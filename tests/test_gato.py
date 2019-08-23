@@ -1,4 +1,4 @@
-from gato import __version__
+from apodo import __version__
 
 
 def test_version():

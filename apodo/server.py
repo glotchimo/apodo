@@ -1,8 +1,8 @@
 """
-gato.server
+apodo.server
 ~~~~~~~~~~~
 
-This module contains the `Gato` core server class.
+This module contains the `Apodo` core server class.
 """
 
 from asyncio import run, start_server, StreamReader, StreamWriter
@@ -10,8 +10,8 @@ from asyncio import run, start_server, StreamReader, StreamWriter
 from .request import Request
 
 
-class Gato:
-    """ Implements the `Gato` application class.
+class Apodo:
+    """ Implements the `Apodo` application class.
 
     This class serves as the central instance and interface for the application.
     It is the interface through which the user creates views, and also controls
@@ -22,7 +22,9 @@ class Gato:
     :param `port`: a `str` port number.
     """
 
-    def __init__(self, name: str = "Gato", host: str = "127.0.0.1", port: str = "7777"):
+    def __init__(
+        self, name: str = "Apodo", host: str = "127.0.0.1", port: str = "7777"
+    ):
         self.name = name
         self.host = host
         self.port = port

@@ -1,5 +1,5 @@
 """
-gato.response
+apodo.response
 ~~~~~~~~~~~~~
 
 This module contains the `Response` class.

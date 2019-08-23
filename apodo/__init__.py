@@ -1,4 +1,4 @@
 __version__ = "0.1.0"
 
-from .server import Gato
+from .server import Apodo
 from .request import Request

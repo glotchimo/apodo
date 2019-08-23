@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gato"
+name = "apodo"
 version = "0.1.0"
 description = "A remarkably fast asynchronous web framework for Python."
 authors = ["Elliott Maguire <me@elliott-m.com>"]

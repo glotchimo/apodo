@@ -1,5 +1,5 @@
 """
-gato.headers.headers
+apodo.headers.headers
 ~~~~~~~~~~~~~~~~~~~~
 
 This module implements the custom Headers class.
@@ -51,9 +51,7 @@ class Headers:
         self.values = {}
         while self.raw:
             header = self.raw.pop()
-            self.values[header[0].decode("utf-8").lower()] = header[1].decode(
-                "utf-8"
-            )
+            self.values[header[0].decode("utf-8").lower()] = header[1].decode("utf-8")
 
         self.evaluated = True
 
