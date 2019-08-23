@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "apodo"
-version = "0.1.0"
+version = "0.1.0.dev"
 description = "A remarkably fast asynchronous web framework for Python."
 authors = ["Elliott Maguire <me@elliott-m.com>"]
 readme = 'README.md'
