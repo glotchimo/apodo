@@ -1,7 +1,9 @@
 # Apodo
-The async Python web framework that acts fast and lands on its feet.
+A very fast and efficient async Python web framework.
 
 Apodo is an asynchronous Python web framework that derives from the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+
+*"Apodo" is a derivative of the Greek word "αποδοτικότητα" or "apodotikótita", which means "efficiency".*
 
 ## Framework Goals
 - Go quick
