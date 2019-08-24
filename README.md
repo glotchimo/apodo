@@ -1,7 +1,11 @@
-# Gato
-The async Python web framework that acts fast and lands on its feet.
+# Apodo
+A very fast and efficient async Python web framework.
 
-Gato is an asynchronous Python web framework that derives from the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+Apodo is an asynchronous Python web framework that derives from the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+
+*"Apodo" is a derivative of the Greek word "αποδοτικότητα" or "apodotikótita", which means "efficiency".*
+
+**Check out the dev branch for the most up-to-date source.**
 
 ## Framework Goals
 - Go quick
@@ -16,25 +20,25 @@ Gato is an asynchronous Python web framework that derives from the Vibora framew
 "Your team's strength is not a function of the talent of individual members. It's a function of their collaboration, tenacity, and mutual respect."
 
 ## Development Plan
-Gato, while derived from the Vibora framework, will be built with a new design philosophy in mind. We will reference the old source of Vibora as we build, but only for some lower-level concepts.
+Apodo, while derived from the Vibora framework, will be built with a new design philosophy in mind. We will reference the old source of Vibora as we build, but only for some lower-level concepts.
 
 A major pitfall of Vibora was its lack of strict system design guidelines, as well of its lack of documentation. Solid design is to be held in high regard along with functional speed, and design should not and will not be compromised for functional speed. Building a spaghetti dinner that runs very quickly is fine, but building a well-designed, fast, and scalable web framework is what we're more interested in.
 
-The plan for Gato is to start with base functionality, and iteratively add features, with Vibora as a functional reference.
+The plan for Apodo is to start with base functionality, and iteratively add features, with Vibora as a functional reference.
 
 ## Development Pipeline
 
 As one of our goals is to work together, the development pipeline is structured knowing that all may not be comfortable/confident enough with Cython and lower-level concepts to be able to contribute to the core system.
 
 ### Vibora Analysis
-This project is for those mentioned above. As the core team works, it is necessary that we are able to reference Vibora. Vibora is woefully lacking in its inline and online documentation, and a way for newcomers to contribute is by digging through the source in the `legacy` package, figuring out what it does, and writing in docstrings/refactoring illegible code. This process will not only support and speed up the development of Gato, but also equip newcomers with tons of knowledge about how this type of web framework operates under the hood.
+This project is for those mentioned above. As the core team works, it is necessary that we are able to reference Vibora. Vibora is woefully lacking in its inline and online documentation, and a way for newcomers to contribute is by digging through the source in the `legacy` package, figuring out what it does, and writing in docstrings/refactoring illegible code. This process will not only support and speed up the development of Apodo, but also equip newcomers with tons of knowledge about how this type of web framework operates under the hood.
 
 To contribute in this way, all you have to do is fork with the branch schema of `v-rewrite-<module or package name>` and submit a PR once you're done adding docstrings and refactoring illegible code. Your PR must pass one review before it is merged to `dev`.
 
 ### Core Development
 This project is for those experienced in Python, with knowledge of how it works as a language, as well as C concepts like Cython and other C-optimised practices and libraries, as well as sufficient understanding of web technologies and practices.
 
-In order to contribute this way, you must be in the Gato Slack group and approved as a contributor on the core repository.
+In order to contribute this way, you must be in the Apodo Slack group and approved as a contributor on the core repository.
 
 Contribution to the core system will be heavily discussion-based until we release a first iteration, after which the iterative feature adds will begin. Until then, contact Elliott about joining the core team, and we'll go from there.
 
@@ -49,7 +53,7 @@ As it stands, commenting and style consistency is woefully lacking in the Vibora
 For module docstrings, comments should look like this:
 
     """
-    gato.utils.module (modular path)
+    apodo.utils.module (modular path)
     ~~~~~~~~~~~~~~~~~
 
     This module implements the `Class` class, and other stuff. (module description)
@@ -95,4 +99,4 @@ The Vibora framework, while intelligently conceptualized and designed, lacked th
 
 A major goal of this project is to cultivate an efficient and involved development/contribution pipeline, rather than an isolated and centralized dependent workflow for few.
 
-This project needs developers! Join us on the [slack channel](https://join.slack.com/t/gatoproject/shared_invite/enQtNzA1NjcwMDU4MDA2LWIyZWFmNDY2YzEyM2RmYWQ2OWM3MzQyN2QwYzllYzg3OGRhMzJkOWIwMjA2OTEyOGVkYTliZTA4OWQwMDI1Y2U)
+This project needs developers! Join us on the [slack channel](https://join.slack.com/t/apodoproject/shared_invite/enQtNzA1NjcwMDU4MDA2LWIyZWFmNDY2YzEyM2RmYWQ2OWM3MzQyN2QwYzllYzg3OGRhMzJkOWIwMjA2OTEyOGVkYTliZTA4OWQwMDI1Y2U)
