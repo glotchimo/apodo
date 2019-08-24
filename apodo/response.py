@@ -5,6 +5,7 @@ apodo.response
 This module contains the `Response` class.
 """
 
+from typing import AnyStr
 from datetime import datetime
 from asyncio import StreamWriter
 
@@ -19,13 +20,13 @@ class Response:
     :param `body`: (optional) Data to send back in the response body.
     """
 
-    def __init__(self, writer: StreamWriter, body=None, headers: dict = None):
-        self.writer = writer
+    def __init__(self, writer: StreamWriter, headers: dict = None, body: AnyStr = None):
+        self.writer: StreamWriter = writer
 
-        self.headers = headers
-        self.body = body
+        self.headers: dict = headers
+        self.body: AnyStr = body
 
-    def build(self):
+    def build(self) -> bytes:
         """ Builds raw response data. """
         self.headers.update(
             {
@@ -33,15 +34,17 @@ class Response:
                 "Content-Length": len(self.body),
             }
         )
-        header_str = "\r\n".join([f"{k}: {v}" for k, v in self.headers.items()])
+        header_str: str = "\r\n".join([f"{k}: {v}" for k, v in self.headers.items()])
 
-        raw = bytes(f"HTTP/1.1 200 OK\r\n{header_str}\r\n\r\n{self.body}", "utf-8")
+        raw: bytes = bytes(
+            f"HTTP/1.1 200 OK\r\n{header_str}\r\n\r\n{self.body}", "utf-8"
+        )
 
         return raw
 
-    async def send(self, response):
+    async def send(self) -> None:
         """ Sends a response. """
-        raw = response.build()
+        raw: bytes = self.build()
 
         self.writer.write(raw)
         await self.writer.drain()

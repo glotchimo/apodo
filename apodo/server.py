@@ -5,7 +5,8 @@ apodo.server
 This module contains the `Apodo` core server class.
 """
 
-from asyncio import run, start_server, StreamReader, StreamWriter
+from typing import MethodDescriptorType, MethodWrapperType
+from asyncio import run, start_server, Server, StreamReader, StreamWriter
 
 from .request import Request
 
@@ -25,35 +26,35 @@ class Apodo:
     def __init__(
         self, name: str = "Apodo", host: str = "127.0.0.1", port: str = "7777"
     ):
-        self.name = name
-        self.host = host
-        self.port = port
+        self.name: str = name
+        self.host: str = host
+        self.port: str = port
 
-        self.views = {}
+        self.views: dict = {}
 
-    def view(self, path: str):
+    def view(self, path: str) -> MethodWrapperType:
         """ Registers a view function.
 
         :param `path`: the `str` `path` of the given view.
         """
 
-        def decorator(f):
+        def decorator(f: MethodDescriptorType):
             self.views.update({path: f})
             return f
 
         return decorator
 
-    def serve(self):
+    def serve(self) -> None:
         """ Runs the server. """
         print(f"Running {self.name} at {self.host} on {self.port}.")
         run(self._catch())
 
-    async def _catch(self):
+    async def _catch(self) -> None:
         """ Sets up a server to catch incoming connections. """
-        server = await start_server(self._route, self.host, self.port)
+        server: Server = await start_server(self._route, self.host, self.port)
         await server.serve_forever()
 
-    async def _route(self, reader: StreamReader, writer: StreamWriter):
+    async def _route(self, reader: StreamReader, writer: StreamWriter) -> None:
         """ Routes new connections to the proper views.
 
         This method serves as the `client_connected_cb` callback
@@ -62,14 +63,14 @@ class Apodo:
         :param `reader`: a `StreamReader` object.
         :param `writer`: a `StreamWriter` object.
         """
-        data = await reader.read(10000)
-        event = self._parse(data.decode())
+        data: bytes = await reader.read(10000)
+        event: str = self._parse(data.decode())
 
-        view = self.views.get(event.get("path"))
+        view: MethodDescriptorType = self.views.get(event.get("path"))
 
         await Request(view, reader, writer, **event).view()
 
-    def _parse(self, http: str):
+    def _parse(self, http: str) -> dict:
         """ Parses an HTTP string and returns the body of the event.
 
         :param `http`: a decoded `str` HTTP request.

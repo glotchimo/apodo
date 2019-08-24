@@ -5,6 +5,7 @@ apodo.request
 This module contains the `Request` class.
 """
 
+from typing import AnyStr
 from asyncio import StreamReader, StreamWriter
 
 from .response import Response
@@ -43,24 +44,22 @@ class Request:
     ):
         self.view_function = view_function
 
-        self.reader = reader
-        self.writer = writer
+        self.reader: StreamReader = reader
+        self.writer: StreamWriter = writer
 
-        self.method = method
-        self.path = path
-        self.protocol = protocol
-        self.headers = headers
-        self.body = body
+        self.method: str = method
+        self.path: str = path
+        self.protocol: str = protocol
+        self.headers: dict = headers
+        self.body: str = body
 
-    async def view(self):
+    async def view(self) -> None:
         """ Executes the user-defined view method. """
-        data = await self.view_function(self)
+        data: AnyStr = await self.view_function(self)
 
         if type(data) is Response:
-            response = data
+            response: Response = data
         else:
-            response = Response(
-                self.writer, body=data, headers={"Content-Type": "text/plain"}
-            )
+            response: Response = Response(self.writer, body=data)
 
-        await response.send(response)
+        await response.send()
