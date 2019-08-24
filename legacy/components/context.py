@@ -1,5 +1,5 @@
 """
-gato.components.context
+apodo.components.context
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 This module contains an abstraction that allows for easy

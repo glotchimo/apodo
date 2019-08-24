@@ -1,5 +1,5 @@
 """
-gato.multipart.containers
+apodo.multipart.containers
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module implements some multipart-specific custom container classes.
@@ -45,13 +45,7 @@ class FileUpload:
     """
 
     def __init__(
-        self,
-        name,
-        path=None,
-        content=None,
-        iterable=None,
-        file=None,
-        headers=None,
+        self, name, path=None, content=None, iterable=None, file=None, headers=None
     ):
         self.name = name or str(uuid.uuid4())
         self.headers = headers
@@ -83,12 +77,7 @@ class MultipartEncoder:
     """
 
     def __init__(
-        self,
-        delimiter,
-        params,
-        chunk_size=1 * 1024 * 1024,
-        loop=None,
-        encoding="utf-8",
+        self, delimiter, params, chunk_size=1 * 1024 * 1024, loop=None, encoding="utf-8"
     ):
         self.delimiter = b"--" + delimiter
         self.params = params
@@ -145,9 +134,7 @@ class MultipartEncoder:
         if type(value) is FileUpload:
             while True:
                 chunk = (
-                    self.loop.run_until_complete(
-                        value.file.read(self.chunk_size)
-                    )
+                    self.loop.run_until_complete(value.file.read(self.chunk_size))
                     if value.is_async
                     else value.file.read(self.chunk_size)
                 )

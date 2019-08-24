@@ -1,9 +1,9 @@
 """
-gato.components.components.pyx
+apodo.components.components.pyx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module implements the `Component` and `ComponentEngine` classes.
-Components are gato"s way of providing universal object without making them global.
+Components are apodo"s way of providing universal object without making them global.
 """
 
 from typing import Callable, Type, get_type_hints
@@ -142,7 +142,7 @@ cdef class ComponentsEngine:
                     element = key
                 else:
                     raise ValueError(
-                        "Gato can't decide which component do you want, "
+                        "Apodo can't decide which component do you want, "
                         "because there at least two types who are a "
                         f"subclass of {required_type}"
                     )
@@ -171,7 +171,7 @@ cdef class ComponentsEngine:
 
             if key is not None and second_key is not None:
                 raise MissingComponent(
-                    "Gato can't decide which component do you want, "
+                    "Apodo can't decide which component do you want, "
                     "because there at least two types who are "
                     f"a subclass of {required_type}",
                     component=required_type

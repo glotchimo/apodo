@@ -1,5 +1,5 @@
 """
-gato.components.components.pxd
+apodo.components.components.pxd
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module implements the Cython build of the `ComponentsEngine` class.
