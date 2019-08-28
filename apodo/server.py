@@ -6,13 +6,13 @@ This module contains the core `Apodo` class.
 """
 
 import sys
-from functools import partial
 from email.utils import formatdate
+from functools import partial
 from multiprocessing import cpu_count
 
+from .application import Application
 from .request import Request
 from .utils import bind, pause
-from .application import Application
 from .workers.handler import RequestHandler
 from .workers.necromancer import Necromancer
 

@@ -5,11 +5,11 @@ apodo.application
 This module contains the `Application` class.
 """
 
-from .request import Request
-from .protocol import Connection
 from .blueprints import Blueprint
 from .components import ComponentsEngine
-from .exceptions import ReverseNotFound, DuplicatedBlueprint
+from .exceptions import DuplicatedBlueprint, ReverseNotFound
+from .protocol import Connection
+from .request import Request
 
 
 class Application(Blueprint):

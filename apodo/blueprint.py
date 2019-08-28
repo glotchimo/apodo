@@ -6,9 +6,10 @@ This module contains the `Blueprint` class.
 """
 
 from inspect import iscoroutinefunction
+from typing import Callable
 
+from .exceptions import ConflictingPrefixes, DuplicatedBlueprint
 from .router import Route
-from .exceptions import DuplicatedBlueprint, ConflictingPrefixes
 
 
 class Blueprint:
@@ -32,7 +33,7 @@ class Blueprint:
         self.app = None
         self.parent = None
 
-    def route(self, path, name=None, methods=None, hosts: list = None):
+    def route(self, path, name=None, methods=None, hosts: list = None) -> Callable:
         """ Wraps a method to register a new route.
 
         :param `path`: A `str` URL path.

@@ -6,9 +6,9 @@ This module contains assorted utility classes and methods.
 """
 
 import os
-import time
-import socket
 import signal
+import socket
+import time
 
 
 def bind(host: str, port: int, timeout: int = 10) -> None:
