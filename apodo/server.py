@@ -1,88 +1,71 @@
 """
 apodo.server
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
-This module contains the `Apodo` core server class.
+This module contains the core `Apodo` class.
 """
 
-from typing import MethodDescriptorType, MethodWrapperType
-from asyncio import run, start_server, Server, StreamReader, StreamWriter
+import sys
+from functools import partial
+from email.utils import formatdate
+from multiprocessing import cpu_count
 
 from .request import Request
+from .utils import bind, pause
+from .application import Application
+from .workers.handler import RequestHandler
+from .workers.necromancer import Necromancer
 
 
-class Apodo:
-    """ Implements the `Apodo` application class.
+class Apodo(Application):
+    """ Implements the `Apodo` class. """
 
-    This class serves as the central instance and interface for the application.
-    It is the interface through which the user creates views, and also controls
-    views, routing, sessions, etc.
+    current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
-    :param `name`: a `str` name for the server.
-    :param `host`: a `str` host URI.
-    :param `port`: a `str` port number.
-    """
+    def initialize(self) -> None:
+        """ Initializes the application. """
+        self.components.add(self)
+        self.add_blueprint(self)
+        self.initialized = True
 
-    def __init__(
-        self, name: str = "Apodo", host: str = "127.0.0.1", port: str = "7777"
-    ):
-        self.name: str = name
-        self.host: str = host
-        self.port: str = port
+    def run(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 5000,
+        workers: int = None,
+        block: bool = True,
+        necromancer: bool = False,
+    ) -> None:
+        """ Runs the server.
 
-        self.views: dict = {}
-
-    def view(self, path: str) -> MethodWrapperType:
-        """ Registers a view function.
-
-        :param `path`: the `str` `path` of the given view.
+        :param startup_message:
+        :param host:
+        :param port:
+        :param workers:
+        :param debug:
+        :param block:
+        :param necromancer:
+        :param sock:
+        :return:
         """
+        spawner = partial(RequestHandler, self, host, port)
+        for _ in range(0, (workers or cpu_count() + 2)):
+            worker = spawner()
+            worker.start()
+            self.workers.append(worker)
 
-        def decorator(f: MethodDescriptorType):
-            self.views.update({path: f})
-            return f
+        necromancer = Necromancer(
+            self.workers, spawner=spawner, interval=self.server_limits.worker_timeout
+        )
+        necromancer.start()
 
-        return decorator
+        bind(host, port)
+        print("# Apodo # http://" + str(host) + ":" + str(port))
+        self.running = True
 
-    def serve(self) -> None:
-        """ Runs the server. """
-        print(f"Running {self.name} at {self.host} on {self.port}.")
-        run(self._catch())
-
-    async def _catch(self) -> None:
-        """ Sets up a server to catch incoming connections. """
-        server: Server = await start_server(self._route, self.host, self.port)
-        await server.serve_forever()
-
-    async def _route(self, reader: StreamReader, writer: StreamWriter) -> None:
-        """ Routes new connections to the proper views.
-
-        This method serves as the `client_connected_cb` callback
-        parameter of `asyncio.start_server`.
-
-        :param `reader`: a `StreamReader` object.
-        :param `writer`: a `StreamWriter` object.
-        """
-        data: bytes = await reader.read(10000)
-        event: str = self._parse(data.decode())
-
-        view: MethodDescriptorType = self.views.get(event.get("path"))
-
-        await Request(view, reader, writer, **event).view()
-
-    def _parse(self, http: str) -> dict:
-        """ Parses an HTTP string and returns the body of the event.
-
-        :param `http`: a decoded `str` HTTP request.
-        """
-        request, *headers, _, body = http.split("\r\n")
-        method, path, protocol = request.split(" ")
-        headers = dict(line.split(":", maxsplit=1) for line in headers)
-
-        return {
-            "method": method,
-            "path": path,
-            "protocol": protocol,
-            "headers": headers,
-            "body": body,
-        }
+        if block:
+            try:
+                pause()
+                self.running = False
+            except KeyboardInterrupt:
+                self.clean_up()
