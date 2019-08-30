@@ -18,12 +18,15 @@ from .workers.necromancer import Necromancer
 
 
 class Apodo(Application):
-    """ Implements the `Apodo` class. """
+    """ Implements the `Apodo` class.
+
+    This class subclasses the Application and thus Blueprint objects
+    and controls all server instance operations.
+    """
 
     current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
-    def initialize(self) -> None:
-        """ Initializes the application. """
+    def __init__(self) -> None:
         self.components.add(self)
         self.add_blueprint(self)
         self.initialized = True
@@ -34,19 +37,13 @@ class Apodo(Application):
         port: int = 5000,
         workers: int = None,
         block: bool = True,
-        necromancer: bool = False,
     ) -> None:
         """ Runs the server.
 
-        :param startup_message:
-        :param host:
-        :param port:
-        :param workers:
-        :param debug:
-        :param block:
-        :param necromancer:
-        :param sock:
-        :return:
+        :param `host`: A `str` host to connect to.
+        :param port: An `int` port to connect to.
+        :param workers: An `int` indicating how many workers to spawn.
+        :param `block`: A `bool` to start the pause/block sequence.
         """
         spawner = partial(RequestHandler, self, host, port)
         for _ in range(0, (workers or cpu_count() + 2)):

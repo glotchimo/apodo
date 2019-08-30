@@ -78,6 +78,8 @@ class Application(Blueprint):
         :param `blueprint`: A `Blueprint` object.
         :param `prefixes`: (optional) A `dict` of prefixes.
         """
+        prefixes = prefixes or {}
+
         for name, pattern in prefixes.items():
             for (nested_blueprint, nested_prefixes) in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
@@ -115,7 +117,7 @@ class Application(Blueprint):
         :param `_name`: The `str` name of a route.
         :param `_external`: A `bool` determining the use of an external URL.
 
-        :return url: A str URL.
+        :return url: A `str` URL.
         """
         if not self.initialized:
             raise ValueError("Routes are not yet registered.")
@@ -131,4 +133,4 @@ class Application(Blueprint):
 
             root = self.url_scheme + "://" + self.server_name
 
-        return root + route.build_url(*args, **kwargs).decode()
+        return root + route.path.decode()

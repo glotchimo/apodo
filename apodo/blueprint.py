@@ -54,7 +54,7 @@ class Blueprint:
                 Route(
                     path.encode(),
                     handler,
-                    tuple(methods or (b"GET",)),
+                    methods=tuple(methods or (b"GET",)),
                     parent=self,
                     name=handler.__name__ or name,
                     hosts=hosts or self.hosts,
