@@ -10,9 +10,9 @@ from email.utils import formatdate
 from functools import partial
 from multiprocessing import cpu_count
 
-from .application import Application
-from .request import Request
-from .utils import bind, pause
+from .core.application import Application
+from .net.request import Request
+from .util.utils import bind, pause
 from .workers.handler import RequestHandler
 from .workers.necromancer import Necromancer
 

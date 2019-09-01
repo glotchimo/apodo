@@ -5,11 +5,10 @@ apodo.application
 This module contains the `Application` class.
 """
 
-from .blueprints import Blueprint
-from .components import ComponentsEngine
-from .exceptions import DuplicatedBlueprint, ReverseNotFound
-from .protocol import Connection
-from .request import Request
+from ..net.connection import Connection
+from ..net.request import Request
+from ..util.exceptions import DuplicatedBlueprint, ReverseNotFound
+from .blueprint import Blueprint
 
 
 class Application(Blueprint):
@@ -32,8 +31,6 @@ class Application(Blueprint):
         self.handler = Connection
         self.connections = set()
         self.workers = []
-
-        self.components = ComponentsEngine()
 
         self.loop = None
 

@@ -62,7 +62,7 @@ class Route:
     def __str__(self):
         return f"<Route ('{self.path}', methods={self.methods})>"
 
-    def call_handler(self, request: Request):
+    def call_handler(self, request: Request) -> Response:
         """ Calls the present handler. """
         return self.handler()
 
