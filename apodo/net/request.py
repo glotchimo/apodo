@@ -13,9 +13,8 @@ from ..headers.headers import Headers
 from ..protocol.connection import Connection
 
 
-class StreamQueue:
+class StreamQueue(deque):
     def __init__(self):
-        self.items = deque()
         self.event = Event()
         self.waiting = False
         self.dirty = False
@@ -23,7 +22,7 @@ class StreamQueue:
 
     async def get(self) -> bytes:
         try:
-            return self.items.popleft()
+            return self.popleft()
         except IndexError:
             if self.finished is True:
                 return b""
@@ -33,17 +32,17 @@ class StreamQueue:
                 await self.event.wait()
                 self.event.clear()
                 self.waiting = False
-                return self.items.popleft()
+                return self.popleft()
 
     def put(self, item: bytes) -> None:
         self.dirty = True
-        self.items.append(item)
+        self.append(item)
         if self.waiting is True:
             self.event.set()
 
     def clear(self) -> None:
         if self.dirty:
-            self.items.clear()
+            self.clear()
             self.event.clear()
             self.dirty = False
         self.finished = False
