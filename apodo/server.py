@@ -41,8 +41,8 @@ class Apodo(Application):
         """ Runs the server.
 
         :param `host`: A `str` host to connect to.
-        :param port: An `int` port to connect to.
-        :param workers: An `int` indicating how many workers to spawn.
+        :param `port`: An `int` port to connect to.
+        :param `workers`: An `int` indicating how many workers to spawn.
         :param `block`: A `bool` to start the pause/block sequence.
         """
         spawner = partial(RequestHandler, self, host, port)
