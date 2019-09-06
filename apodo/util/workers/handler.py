@@ -43,9 +43,11 @@ class Handler(Process):
         self.socket = socket
 
     def run(self):
-        self._bind_socket()
+        if not self.socket:
+            self._bind_socket()
+
         self._create_loop()
-        self._create_server()
+        self._start_server()
 
         try:
             self.app.loop.add_signal_handler(signal.SIGTERM, self._handle_kill)
@@ -53,15 +55,14 @@ class Handler(Process):
         except (SystemExit, KeyboardInterrupt):
             self.app.loop.stop()
 
-    def _create_socket(self):
-        if not self.socket:
-            self.socket = socket()
+    def _bind_socket(self):
+        self.socket = socket()
 
-            self.socket.setsockopt(SOL_SOCKET, SO_REUSEPORT, 1)
-            self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-            self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        self.socket.setsockopt(SOL_SOCKET, SO_REUSEPORT, 1)
+        self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
 
-            self.socket.bind((self.host, self.port))
+        self.socket.bind((self.host, self.port))
 
     def _create_loop(self):
         loop = asyncio.new_event_loop()
@@ -71,7 +72,7 @@ class Handler(Process):
 
         asyncio.set_event_loop(loop)
 
-    def _create_server(self):
+    def _start_server(self):
         self.app.reaper = Reaper(app=self.app)
         self.app.reaper.start()
 
