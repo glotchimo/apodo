@@ -1,58 +1,68 @@
-import time
+"""
+apodo.util.workers.reaper
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module contains the `Reaper` class.
+"""
+
 import os
 import signal
+import time
 from datetime import datetime, timezone
 from email.utils import formatdate
 from threading import Thread
-from ..responses import update_current_time
-from ..protocol import ConnectionStatus, update_current_time as update_time_protocol
+
+from ...core.application import Application
+from ...net.connection import ConnectionStatus
 
 
 class Reaper(Thread):
-    def __init__(self, app):
+    """ Implements the `Reaper` class.
+
+    This class automatically kills/cleans idle/dead connections.
+
+    :param `app`: The current `Application` object.
+    """
+
+    def __init__(self, app: Application):
         super().__init__()
 
-        self.app = app
-
-        # Early bindings
+        self.app: Application = app
         self.connections: set = self.app.connections
 
-        # How long we allow a connection being idle.
         self.keep_alive_timeout: int = self.app.server_limits.keep_alive_timeout
-
-        # In case the worker is stuck for some crazy reason (sync calls, expensive CPU ops) we gonna kill it.
         self.worker_timeout: int = self.app.server_limits.worker_timeout
 
-        # Flag to stop this thread.
         self.has_to_work: bool = True
 
-    @staticmethod
-    async def kill_connections(connections: list):
-        for connection in connections:
-            connection.transport.clean_up()
+    def run(self):
+        count = 0
+        while self.has_to_work:
+            count += 1
 
-    def check_if_worker_is_stuck(self):
-        """
+            self.app.current_time = datetime.time().isoformat()
 
-        :return:
-        """
-        current_time = time.time()
+            if self.keep_alive_timeout > 0:
+                if count % self.keep_alive_timeout == 0:
+                    self._kill_idles()
+
+            if count % self.worker_timeout == 0:
+                self._check_worker()
+
+            time.sleep(1)
+
+    def _check_connections(self):
+        """ Checks potentially stuck connections, hard-stops them. """
+        now = time.time()
         for connection in self.app.connections.copy():
-            conditions = (
-                connection.get_status() == ConnectionStatus.PROCESSING_REQUEST,
-                current_time - connection.get_last_task_time() >= self.worker_timeout,
-            )
-            if all(conditions):
-                # ###############
-                # Seppuku #######
-                # # # # # # # # #
+            if (
+                connection.get_status() == ConnectionStatus.PROCESSING_REQUEST
+                and now - connection.get_last_task_time() >= self.worker_timeout
+            ):
                 os.kill(os.getpid(), signal.SIGKILL)
 
-    def kill_idle_connections(self):
-        """
-
-        :return:
-        """
+    def _kill_idles(self):
+        """ Checks potentially idle connections, soft-stops them. """
         now = time.time()
         for connection in self.connections.copy():
             if connection.get_status() == ConnectionStatus.PENDING and (
@@ -60,29 +70,7 @@ class Reaper(Thread):
             ):
                 connection.stop()
 
-    def run(self):
-        """
-
-        :return:
-        """
-        counter = 0
-        while self.has_to_work:
-            counter += 1
-
-            # Removing the microseconds because this time is cached and it could trick the user into believing
-            # that two requests were processed at exactly the same time because of the cached time.
-            now = datetime.now(timezone.utc).replace(microsecond=0).astimezone()
-            self.app.current_time = now.isoformat()
-            update_current_time(
-                formatdate(timeval=now.timestamp(), localtime=False, usegmt=True)
-            )
-            update_time_protocol()
-
-            if self.keep_alive_timeout > 0:
-                if counter % self.keep_alive_timeout == 0:
-                    self.kill_idle_connections()
-
-            if counter % self.worker_timeout == 0:
-                self.check_if_worker_is_stuck()
-
-            time.sleep(1)
+    @staticmethod
+    async def kill_connections(connections: list):
+        for connection in connections:
+            connection.transport.clean_up()
