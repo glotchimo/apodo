@@ -26,19 +26,34 @@ class Handler(Process):
     """ Implements the `Handler` class.
 
     This class controls the socket-level operations around request handling.
+
+    :param `app`: The current `Application` object.
+    :param `bind`: A `str` host to bind to.
+    :param `port`: A `int` port to bind to.
+    :param `socket`: (optional) An existing `socket` to use.
     """
 
-    def __init__(self, app: Application, bind: str, port: int, socket=None):
+    def __init__(self, app: Application, host: str, port: int, socket=None):
         super().__init__()
 
         self.app = app
-        self.bind = bind
+        self.host = host
         self.port = port
         self.daemon = True
         self.socket = socket
 
     def run(self):
-        """ Runs the server. """
+        self._bind_socket()
+        self._create_loop()
+        self._create_server()
+
+        try:
+            self.app.loop.add_signal_handler(signal.SIGTERM, self._handle_kill)
+            self.app.loop.run_forever()
+        except (SystemExit, KeyboardInterrupt):
+            self.app.loop.stop()
+
+    def _create_socket(self):
         if not self.socket:
             self.socket = socket()
 
@@ -46,53 +61,54 @@ class Handler(Process):
             self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
 
-            self.socket.bind((self.bind, self.port))
+            self.socket.bind((self.host, self.port))
 
+    def _create_loop(self):
         loop = asyncio.new_event_loop()
+
         loop.app = self.app
         self.app.loop = loop
-        self.app.components.add(loop)
+
         asyncio.set_event_loop(loop)
 
+    def _create_server(self):
         self.app.reaper = Reaper(app=self.app)
         self.app.reaper.start()
 
         self.app.initialize()
 
-        handler = partial(self.app.handler, app=self.app, loop=loop, worker=self)
-        ss = loop.create_server(
+        handler = partial(
+            self.app.handler, app=self.app, loop=self.app.loop, worker=self
+        )
+        server = self.app.loop.create_server(
             handler, sock=self.socket, reuse_port=True, backlog=1000
         )
 
-        loop.run_until_complete(ss)
+        self.app.loop.run_until_complete(server)
 
-        async def stop_server(timeout=30):
-            """ Runs a soft-to-hard stop on active connections. """
-            self.app.reaper.has_to_work = False
+    async def _stop_server(self, timeout=30):
+        """ Runs a soft-to-hard stop on active connections. """
+        self.app.reaper.has_to_work = False
 
-            for connection in self.app.connections.copy():
-                connection.stop()
+        for connection in self.app.connections.copy():
+            connection.stop()
 
-            while timeout:
-                all_closed = True
-                for connection in self.app.connections:
-                    if not connection.is_closed():
-                        all_closed = False
-                        break
-                if all_closed:
+        while timeout:
+            all_closed = True
+
+            for connection in self.app.connections:
+                if not connection.is_closed():
+                    all_closed = False
                     break
-                timeout -= 1
-                await asyncio.sleep(1)
 
-            loop.stop()
+            if all_closed:
+                break
 
-        def handle_kill_signal():
-            """ Closes the socket and stops the server. """
-            self.socket.close()
-            loop.create_task(stop_server(10))
+            timeout -= 1
+            await asyncio.sleep(1)
 
-        try:
-            loop.add_signal_handler(signal.SIGTERM, handle_kill_signal)
-            loop.run_forever()
-        except (SystemExit, KeyboardInterrupt):
-            loop.stop()
+        self.app.loop.stop()
+
+    def _handle_kill(self):
+        self.socket.close()
+        self.app.loop.create_task(self._stop_server(10))
