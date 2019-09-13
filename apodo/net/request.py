@@ -17,18 +17,19 @@ from ..util.utils import RequestParams
 from .headers import Headers
 
 
-class StreamQueue(deque):
-    def __init__(self):
+class Stream(deque):
+    def __init__(self, connection):
         self.event = Event()
         self.waiting = False
         self.dirty = False
-        self.finished = False
+        self.consumed = False
+        self.connection = connection
 
     async def get(self) -> bytes:
         try:
             return self.popleft()
         except IndexError:
-            if self.finished is True:
+            if self.consumed:
                 return b""
             else:
                 self.event.clear()
@@ -44,25 +45,18 @@ class StreamQueue(deque):
         if self.waiting is True:
             self.event.set()
 
-    def clear(self):
+    def clear_queue(self):
         if self.dirty:
             self.clear()
             self.event.clear()
             self.dirty = False
-        self.finished = False
+        self.consumed = False
 
     def end(self):
         if self.waiting:
             self.put(None)
-        self.finished = True
-
-
-class Stream:
-    def __init__(self, connection):
-        self.consumed = False
-        self.queue = StreamQueue()
-        self.connection = connection
-
+        self.consumed = True
+        
     async def read(self) -> bytearray:
         if self.consumed:
             raise StreamAlreadyConsumed()
@@ -76,20 +70,12 @@ class Stream:
             raise StreamAlreadyConsumed()
         while True:
             self.connection.resume_reading()
-            data = await self.queue.get()
+            data = await self.get()
             if not data:
                 self.consumed = True
                 break
             self.connection.pause_reading()
             yield data
-
-    def clear(self):
-        """
-        Resets the stream status.
-        :return: None
-        """
-        self.queue.clear()
-        self.consumed = False
 
 
 class Request:
