@@ -2,7 +2,7 @@
 apodo.net.request
 ~~~~~~~~~~~~~~~~~
 
-This module contains the `StreamQueue`, `Stream`, and `Request` classes.
+This module contains the `Stream` and `Request` classes.
 """
 
 import json
@@ -12,84 +12,92 @@ from typing import List
 from urllib.parse import ParseResult, parse_qs, urlparse
 
 from ..util.exceptions import InvalidJSON, StreamAlreadyConsumed
-from .connection import Connection
 from ..util.utils import RequestParams
+from .connection import Connection
 from .headers import Headers
 
 
-class StreamQueue(deque):
-    def __init__(self):
+class Stream(deque):
+    """ Implements the `Stream` class.
+
+    This class, previously separated into `StreamQueue` and `Stream`,
+    `StreamQueue` having an `items` property that was a `deque` object,
+    is now a modified subclass of `deque`.
+    """
+
+    def __init__(self, connection: Connection):
+        super().__init__()
+
+        self.connection = connection
         self.event = Event()
+
         self.waiting = False
         self.dirty = False
-        self.finished = False
+        self.consumed = False
+
+    async def __aiter__(self):
+        if self.consumed:
+            raise StreamAlreadyConsumed()
+
+        while True:
+            self.connection.resume_reading()
+
+            data = await self.get()
+            if not data:
+                self.consumed = True
+                break
+
+            self.connection.pause_reading()
+            yield data
 
     async def get(self) -> bytes:
         try:
             return self.popleft()
         except IndexError:
-            if self.finished is True:
+            if self.consumed:
                 return b""
             else:
                 self.event.clear()
                 self.waiting = True
+
                 await self.event.wait()
+
                 self.event.clear()
                 self.waiting = False
+
                 return self.popleft()
 
     def put(self, item: bytes):
         self.dirty = True
         self.append(item)
+
         if self.waiting is True:
             self.event.set()
 
-    def clear(self):
+    def clear_queue(self):
         if self.dirty:
             self.clear()
             self.event.clear()
+
             self.dirty = False
-        self.finished = False
+
+        self.consumed = False
 
     def end(self):
         if self.waiting:
             self.put(None)
-        self.finished = True
 
-
-class Stream:
-    def __init__(self, connection):
-        self.consumed = False
-        self.queue = StreamQueue()
-        self.connection = connection
+        self.consumed = True
 
     async def read(self) -> bytearray:
         if self.consumed:
             raise StreamAlreadyConsumed()
+
         data = bytearray()
         async for chunk in self:
             data.extend(chunk)
+
         return data
-
-    async def __aiter__(self):
-        if self.consumed:
-            raise StreamAlreadyConsumed()
-        while True:
-            self.connection.resume_reading()
-            data = await self.queue.get()
-            if not data:
-                self.consumed = True
-                break
-            self.connection.pause_reading()
-            yield data
-
-    def clear(self):
-        """
-        Resets the stream status.
-        :return: None
-        """
-        self.queue.clear()
-        self.consumed = False
 
 
 class Request:
