@@ -5,6 +5,8 @@ Apodo is an asynchronous Python web server (and possibly framework) that derives
 
 *"Apodo" is a derivative of the Greek word "αποδοτικότητα" or "apodotikótita", which means "efficiency".*
 
+**Check out the dev branch for the most up-to-date source.**
+
 ## Technical Goals
 - Go quick
 - Run clean
@@ -97,4 +99,4 @@ The Vibora framework, while intelligently conceptualized and designed, lacked th
 
 A major goal of this project is to cultivate an efficient and involved development/contribution pipeline, rather than an isolated and centralized dependent workflow for few.
 
-This project needs developers! Join us on the [slack channel](https://join.slack.com/t/apodoproject/shared_invite/enQtNzA1NjcwMDU4MDA2LWIyZWFmNDY2YzEyM2RmYWQ2OWM3MzQyN2QwYzllYzg3OGRhMzJkOWIwMjA2OTEyOGVkYTliZTA4OWQwMDI1Y2U)
+This project needs developers! Join us on the [slack channel](https://join.slack.com/t/apodo/shared_invite/enQtNzMxODE4Njk2OTk0LWE0MDA3N2I2MDEyZmQxMGQzYzhmZDZiZmQwYzRjNjYzNGY3OGJkNjI5MWJlMzQyZWVmY2I3M2Q4NTg2MzA1ODQ).
