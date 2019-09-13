@@ -5,14 +5,14 @@ apodo.util.workers.necromancer
 This module contains the `Necromancer` class.
 """
 
-import threading
 import time
+from threading import Thread
 from typing import Callable
 
 from ...core.application import Application
 
 
-class Necromancer(threading.Thread):
+class Necromancer(Thread):
     """ Implements the `Necromancer` class.
 
     :param `app`: The current `Application` object.
@@ -33,14 +33,14 @@ class Necromancer(threading.Thread):
         while self.must_work:
             time.sleep(self.interval)
 
-            workers_alive = []
+            living_workers = []
             for worker in self.app.workers:
                 if not worker.is_alive():
                     worker = self.spawn_function()
                     worker.start()
 
-                    workers_alive.append(worker)
+                    living_workers.append(worker)
                 else:
-                    workers_alive.append(worker)
+                    living_workers.append(worker)
 
-            self.app.workers = workers_alive
+            self.app.workers = living_workers

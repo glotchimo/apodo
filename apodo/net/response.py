@@ -118,7 +118,7 @@ class Response:
         params.update(kwargs)
         return self.__class__(**params)
 
-    def send(self, protocol: Connection) -> None:
+    def send(self, protocol: Connection):
         # We check if the protocol is writable because we wanna make sure we aren't making the write buffer
         # surpass the high-mark. To actually process the next response we need to call after_response()
         # but if we don't know yet if the client consumed the response we could be generating responses too fast
@@ -208,7 +208,7 @@ class StreamingResponse(Response):
         content += "\r\n"
         return content.encode()
 
-    def send(self, protocol: Connection) -> None:
+    def send(self, protocol: Connection):
         # Streaming responses make use of a custom timeout function because
         # we don't to send a response in case a timeout.
         # The client could handle the timeout response as part of the stream and a luck enough

@@ -7,6 +7,7 @@ This module contains the `Application` class.
 
 from ..net.connection import Connection
 from ..net.request import Request
+from ..net.router import Router
 from ..util.exceptions import DuplicatedBlueprint, ReverseNotFound
 from .blueprint import Blueprint
 
@@ -28,7 +29,9 @@ class Application(Blueprint):
 
         self.url_scheme = url_scheme
 
+        self.router = Router()
         self.handler = Connection
+
         self.connections = set()
         self.workers = []
 
@@ -44,7 +47,7 @@ class Application(Blueprint):
             )
         self.request_class = request_class
 
-    def add_blueprint(self, blueprint, prefixes=None) -> None:
+    def add_blueprint(self, blueprint, prefixes=None):
         """ Adds a blueprint to the application.
 
         This method ensures that a given blueprint is new, configures its
@@ -64,7 +67,7 @@ class Application(Blueprint):
         self._register_routes(blueprint, prefixes)
         self.blueprints[blueprint] = prefixes
 
-    def _register_routes(self, blueprint, prefixes=None) -> None:
+    def _register_routes(self, blueprint, prefixes):
         """ Registers routes from a `Blueprint`.
 
         This method first saerches through the provided prefixes for nested blueprints,
@@ -75,8 +78,6 @@ class Application(Blueprint):
         :param `blueprint`: A `Blueprint` object.
         :param `prefixes`: (optional) A `dict` of prefixes.
         """
-        prefixes = prefixes or {}
-
         for name, pattern in prefixes.items():
             for (nested_blueprint, nested_prefixes) in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
@@ -94,11 +95,8 @@ class Application(Blueprint):
         blueprint.app = self
         for route in blueprint.routes:
             route.app = self.app
-            route.limits = route.limits or self.limits
 
-            self.router.add_route(route, prefixes=prefixes)
-
-    def clean_up(self) -> None:
+    def clean_up(self):
         """ Kills all active worker processes. """
         for process in self.workers:
             process.terminate()
@@ -119,7 +117,7 @@ class Application(Blueprint):
         if not self.initialized:
             raise ValueError("Routes are not yet registered.")
 
-        route = self.router.reverse_index.get(_name)
+        route = self.router.reverses.get(_name)
         if not route:
             raise ReverseNotFound(_name)
 

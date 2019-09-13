@@ -8,7 +8,7 @@ This module contains the `Blueprint` class.
 from inspect import iscoroutinefunction
 from typing import Callable
 
-from ..net.router import Route
+from ..net.route import Route
 from ..util.exceptions import ConflictingPrefixes, DuplicatedBlueprint
 
 
@@ -28,8 +28,6 @@ class Blueprint:
         self.routes = []
         self.hosts = hosts
 
-        self.exception_handlers = {}
-
         self.app = None
         self.parent = None
 
@@ -43,8 +41,6 @@ class Blueprint:
         """
 
         def register(handler):
-            """ Creates and returns a new `Route` object. """
-
             if not iscoroutinefunction(handler):
                 raise TypeError(
                     f"Your route handler must be an async function. (Handler: {handler})"
@@ -65,16 +61,10 @@ class Blueprint:
 
         return register
 
-    def add_route(self, route: Route) -> None:
-        """ Adds a `Route` to the instance. """
+    def add_route(self, route: Route):
         self.routes.append(route)
 
-    def add_blueprint(self, blueprint, prefixes: dict = None) -> None:
-        """ Adds a nested `Blueprint` to the instance.
-
-        :param `blueprint`: A `Blueprint` object.
-        :param `prefixes`: A `dict` of route prefixes.
-        """
+    def add_blueprint(self, blueprint, prefixes: dict = None):
         if not prefixes:
             prefixes = {"": ""}
 

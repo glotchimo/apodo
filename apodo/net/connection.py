@@ -8,12 +8,11 @@ This module contains the `Connection` class.
 from asyncio import CancelledError, Event, Task, Transport, sleep
 from time import time
 
-from .application import Application
-from .headers.headers import Headers
-from .parsers.errors import HttpParserError
-from .parsers.parser import HttpParser
-from .request.request import Request, Stream
-from .responses.responses import Response
+from ..core.application import Application
+from ..util.parser import HttpParser, HttpParserError
+from .headers import Headers
+from .request import Request, Stream
+from .response import Response
 from .router import Route
 
 PENDING_STATUS: int = 1
@@ -65,20 +64,20 @@ class Connection:
         self.queue = self.stream.queue
         self.write_buffer = app.server_limits.write_buffer
 
-    async def handle_request(self, request: Request, route: Route) -> None:
+    async def handle_request(self, request: Request, route: Route):
         """ Handles an incoming request.
 
         :return `request`: A `Request` object.
         :return `route`: The corresponding `Route` object.
         """
-        response: Response = await route.call_handler(request, self.components)
+        response: Response = await route.call_handler(request)
         response.send(self)
 
-    def cancel_request(self) -> None:
+    def cancel_request(self):
         """ Cancels a current task/request. """
         self.current_task.cancel()
 
-    def connection_made(self, transport: Transport) -> None:
+    def connection_made(self, transport: Transport):
         """ Localizes the transport and adds the connection to the app.
 
         :param `transport`: The connection stream's `Transport` object.
@@ -86,7 +85,7 @@ class Connection:
         self.transport: Transport = transport
         self.app.connections.add(self)
 
-    def data_received(self, data: bytes) -> None:
+    def data_received(self, data: bytes):
         """ Sends received data to the parser.
 
         :param `data`: A `bytes` representation of the incoming data.
@@ -99,13 +98,13 @@ class Connection:
             self.pause_reading()
             self.close()
 
-    def pause_reading(self) -> None:
+    def pause_reading(self):
         """ Pauses the transport reading the stream. """
         if self.readable:
             self.transport.pause_reading()
             self.readable = False
 
-    def resume_reading(self) -> None:
+    def resume_reading(self):
         """ Resumes the transport reading the stream. """
         if not self.readable:
             self.transport.resume_reading()
@@ -113,7 +112,7 @@ class Connection:
 
     def on_headers_complete(
         self, headers: Headers, url: bytes, method: bytes, upgrade: int
-    ) -> None:
+    ):
         """ Carries out response flow once headers have been parsed.
 
         :param `headers`: A `Headers` object.
@@ -130,7 +129,7 @@ class Connection:
             route.limits.timeout, self.cancel_request
         )
 
-    def on_body(self, body: bytes) -> None:
+    def on_body(self, body: bytes):
         """ Reads the body of the request.
 
         This method pauses the reading of the socket while the response
@@ -143,12 +142,12 @@ class Connection:
         self.queue.put(body)
         self.pause_reading()
 
-    def on_message_complete(self) -> None:
+    def on_message_complete(self):
         """ Closes the queue and sets up the process for monitoring. """
         self.queue.end()
         self.status = PROCESSING_STATUS
 
-    def after_response(self, response: Response) -> None:
+    def after_response(self, response: Response):
         """ Handles after-response network flow.
 
         :param `response`: A `Response` object.
@@ -168,7 +167,7 @@ class Connection:
             self.timeout_task.cancel()
             self.timeout_task = None
 
-    async def write(self, data: bytes) -> None:
+    async def write(self, data: bytes):
         """ Writes data to the client.
 
         :param `data`: A `bytes` representation of data to return.
@@ -178,7 +177,7 @@ class Connection:
         if not self.writable:
             await self.write_permission.wait()
 
-    def pause_writing(self) -> None:
+    def pause_writing(self):
         """ Pauses the transport writing to the client. """
         self.writable = False
 
@@ -188,7 +187,7 @@ class Connection:
             self.writable = True
             self.write_permission.set()
 
-    def close(self) -> None:
+    def close(self):
         """ Closes the transport connection. """
         if not self.closed:
             self.transport.close()

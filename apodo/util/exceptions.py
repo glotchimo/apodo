@@ -28,3 +28,18 @@ class DuplicatedBlueprint(ApodoException):
 
 class ConflictingPrefixes(ApodoException):
     pass
+
+
+class InvalidJSON(ApodoException):
+    pass
+
+
+class StreamAlreadyConsumed(ApodoException):
+    def __init__(self):
+        super().__init__("Stream already consumed.")
+
+
+class MethodNotAllowed(ApodoException):
+    def __init__(self, allowed: list):
+        self.allowed = allowed
+        super().__init__()

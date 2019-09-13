@@ -1,16 +1,20 @@
-from typing import List
-from urllib.parse import urlparse, parse_qs, ParseResult
+"""
+apodo.net.request
+~~~~~~~~~~~~~~~~~
+
+This module contains the `StreamQueue`, `Stream`, and `Request` classes.
+"""
+
+import json
 from asyncio import Event
 from queue import deque
+from typing import List
+from urllib.parse import ParseResult, parse_qs, urlparse
 
-from ..multipart import MultipartParser, DiskFile, MemoryFile, UploadedFile
-from ..exceptions import InvalidJSON, StreamAlreadyConsumed
-from ..sessions import Session
-from ..utils import RequestParams
-from ..utils import json
-
-from ..headers.headers import Headers
-from ..protocol.connection import Connection
+from ..util.exceptions import InvalidJSON, StreamAlreadyConsumed
+from .connection import Connection
+from ..util.utils import RequestParams
+from .headers import Headers
 
 
 class StreamQueue(deque):
@@ -34,20 +38,20 @@ class StreamQueue(deque):
                 self.waiting = False
                 return self.popleft()
 
-    def put(self, item: bytes) -> None:
+    def put(self, item: bytes):
         self.dirty = True
         self.append(item)
         if self.waiting is True:
             self.event.set()
 
-    def clear(self) -> None:
+    def clear(self):
         if self.dirty:
             self.clear()
             self.event.clear()
             self.dirty = False
         self.finished = False
 
-    def end(self) -> None:
+    def end(self):
         if self.waiting:
             self.put(None)
         self.finished = True
@@ -154,15 +158,6 @@ class Request:
             self._cookies = self.headers.parse_cookies()
         return self._cookies
 
-    async def session(self) -> Session:
-        """
-
-        :return:
-        """
-        if not self._session:
-            self._session = await self.app.session_engine.load(self.cookies)
-        return self._session
-
     async def json(self, loads=None, strict: bool = False) -> dict:
         """
 
@@ -187,34 +182,6 @@ class Request:
         except ValueError:
             raise InvalidJSON("HTTP request body is not a valid JSON.", 400)
 
-    async def _load_form(self):
-        """
-
-        :return:
-        """
-        content_type: str = self.headers.get("Content-Type")
-        if "multipart/form-data" in content_type:
-            boundary = content_type[content_type.find("boundary=") + 9 :]
-            parser = MultipartParser(boundary.encode())
-            async for chunk in self.stream:
-                await parser.feed(chunk)
-            self._form = parser.consume()
-        else:
-            self._form = {}
-
-    async def files(self) -> List[UploadedFile]:
-        """
-
-        :return:
-        """
-        files: list = []
-        if self._form is None:
-            await self._load_form()
-        for value in self._form.values():
-            if isinstance(value, (DiskFile, MemoryFile)):
-                files.append(value)
-        return files
-
     async def form(self) -> dict:
         """
 
@@ -223,11 +190,3 @@ class Request:
         if self._form is None:
             await self._load_form()
         return self._form
-
-    def session_pending_flush(self):
-        """
-
-        :return:
-        """
-        if self._session and self._session.pending_flush:
-            return self._session

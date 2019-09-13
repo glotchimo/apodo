@@ -1,81 +1,134 @@
 """
-apodo.router.router
-~~~~~~~~~~~~~~~~~~~
+apodo.net.router
+~~~~~~~~~~~~~~~~
 
-This module contains the `Route` and `Router` classes.
+This module contains the `RouterStrategy` and `Router` classes.
 """
 
-import base64
-import hashlib
 import re
-import uuid
-from inspect import isbuiltin, iscoroutinefunction, signature
-from typing import List, Tuple, get_type_hints
 
-from .application import Application
-from .blueprint import Blueprint
-from .parser import PatternParser
-from .protocol import Connection
-from .request.request import Request
-from .responses.responses import Response
-from .utils import clean_methods, clean_route_name
+from ..core.application import Application
+from ..core.blueprint import Blueprint
+from ..util.exceptions import MethodNotAllowed, ReverseNotFound
+from ..util.utils import clean_methods, clean_route_name
+from .connection import Connection
+from .request import Request
+from .response import Response
+from .route import Route
 
 
-class Route:
-    """ Implements the `Route` class.
+class Router:
+    """ Implements the `Router` class. """
 
-    :param `path`: A `bytes`-like representation of the path.
-    :param `handler`: I have no clue what this object is.
-    :param `app`: The active `Application` instance.
-    :param `parent`: The `Route`'s parent, a `Blueprint` object.
-    """
+    def __init__(self):
+        self.reverses = {}
+        self.routes = {}
 
-    def __init__(
-        self,
-        path: bytes,
-        handler: Connection,
-        app: Application = None,
-        parent: Blueprint = None,
-        methods: Tuple = None,
-        name: str = None,
-        hosts: List = None,
+        self.check_host = False
+        self.hosts = {}
+
+    def build_url(self, _name: str, *args, **kwargs):
+        """ Builds a full URL from the reverse of a given route. """
+        try:
+            route = self.reverses[_name]
+            return route.build_url(*args, **kwargs)
+        except KeyError:
+            raise ReverseNotFound(f"Failed to build url for {_name}")
+
+    def add_route(
+        self, route: Route, prefixes: dict = None, check_slashes: bool = True
     ):
-        self.path = path
-        self.handler = handler
-        self.app = app
-        self.parent = parent
-        self.methods = clean_methods(methods)
-        self.hosts = hosts
+        """ Adds a route with the given prefixes to the instance.
 
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return all(
-                [
-                    other.path == self.path,
-                    other.handler == self.handler,
-                    other.methods == self.methods,
-                ]
+        This is a complicated process/result that is still being worked out
+        and documented. Handle with care.
+        """
+        if not prefixes:
+            prefixes = {"": ""}
+
+        for name_prefix, pattern_prefix in prefixes.items():
+            if route.hosts:
+                self.check_host = True
+
+                for host in route.hosts:
+                    host = re.compile(host)
+                    routes = self.hosts.setdefault(host, {})
+
+                    for method in route.methods:
+                        routes.setdefault(method, []).append(route)
+
+            else:
+                for method in route.methods:
+                    self.routes.setdefault(method, {})[route.pattern] = route
+
+            self.reverse_index[route.name] = route
+
+    def get_route(self, request: Request) -> Route:
+        """ Gets the route correspondent to the given `Request`. """
+        if self.check_host:
+            return self._find_route_by_host(
+                request.url, request.method, request.headers.get("host")
             )
         else:
-            return False
+            return self._find_route(request.url, request.method)
 
-    def __str__(self):
-        return f"<Route ('{self.path}', methods={self.methods})>"
+    def _find_route_by_host(self, url: bytes, method: bytes, host: str) -> Route:
+        """ Finds a route by a specific host. """
+        for pattern, routes in self.hosts.items():
+            if pattern.fullmatch(host):
+                for route in routes.get(method, []):
+                    return route
 
-    def call_handler(self, request: Request) -> Response:
-        """ Calls the present handler. """
-        return self.handler()
+                allowed = []
+                for method_name in self.hosts[host]:
+                    if method_name == method:
+                        continue
 
-    def clone(self, path=None, name=None, handler=None, methods=None):
-        """ Clones the current route instance. """
-        return Route(
-            path=path or self.path,
-            handler=handler or self.handler,
-            methods=methods or self.methods,
-            parent=self.parent,
-            app=self.app,
-            limits=self.limits,
-            hosts=self.hosts,
-            name=name or self.name,
-            cache=self.cache,
-        )
+                    for route in self.hosts[host][method_name]:
+                        if not route.is_dynamic and route.pattern == url:
+                            allowed.append(method_name)
+                        elif route.is_dynamic and re.compile(route.path).fullmatch(url):
+                            allowed.append(method_name)
+
+                if allowed:
+                    raise MethodNotAllowed(allowed=allowed)
+
+        return self._find_route(url, method)
+
+    def _find_route(self, url: bytes, method: bytes) -> Route:
+        """ Finds a route by its URL and method. """
+        try:
+            route = self.routes[method][url]
+            return route
+        except KeyError:
+            pass
+
+        self._check_method(url, method)
+
+        raise ReverseNotFound()
+
+    def _check_method(self, url: bytes, method: bytes):
+        """ Checks the validity of a method for a given URL.
+
+        :param `url`: A `bytes` representation of the URL.
+        :param `method`: A `bytes` representation of the method.
+        """
+        allowed = []
+
+        for current_method in self.routes.items():
+            if current_method == method:
+                continue
+
+            if url in self.routes[current_method]:
+                allowed.append(allowed)
+
+        for current_method, routes in self.dynamic_routes.items():
+            if current_method == method:
+                continue
+
+            for route in routes:
+                if route.regex.fullmatch(url):
+                    allowed.append(current_method)
+
+        if allowed:
+            raise MethodNotAllowed(allowed=allowed)

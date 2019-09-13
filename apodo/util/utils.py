@@ -12,7 +12,7 @@ import time
 from typing import Iterable, Tuple, Union
 
 
-def bind(host: str, port: int, timeout: int = 10) -> None:
+def bind(host: str, port: int, timeout: int = 10):
     """ Binds to socket when available.
 
     :param `host`: A `str` host to connect to.
@@ -37,7 +37,7 @@ def bind(host: str, port: int, timeout: int = 10) -> None:
         raise TimeoutError("Server is taking too long to get online.")
 
 
-def pause() -> None:
+def pause():
     """ Pauses the process until a signal is received. """
     if os.name == "nt":
         while True:
@@ -50,7 +50,8 @@ def clean_methods(methods: Iterable[Union[str, bytes]]) -> Tuple[bytes]:
     """ Cleans HTTP method values.
 
     :param `methods`: An iterable of method `str`s.
-    :return: A tuple of bytes with each HTTP method.
+
+    :return: A tuple of `bytes` with each HTTP method.
     """
     if methods:
         parsed_methods = set()
