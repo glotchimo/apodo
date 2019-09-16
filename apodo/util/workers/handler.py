@@ -18,8 +18,8 @@ from socket import (
     socket,
 )
 
-from ...core.application import Application
-from .reaper import Reaper
+from apodo.core.application import Application
+from apodo.util.workers.reaper import Reaper
 
 
 class Handler(Process):

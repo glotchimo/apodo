@@ -8,12 +8,12 @@ This module contains the `Connection` class.
 from asyncio import AbstractEventLoop, Event, Task, Transport, sleep
 from time import time
 
-from ..core.application import Application
-from ..util.parser import HttpParser, HttpParserError
-from .headers import Headers
-from .request import Request, Stream
-from .response import Response
-from .router import Route
+from apodo.core.application import Application
+from apodo.net.headers import Headers
+from apodo.net.request import Request, Stream
+from apodo.net.response import Response
+from apodo.net.router import Route
+from apodo.util.parser import HttpParser, HttpParserError
 
 PENDING_STATUS: int = 1
 RECEIVING_STATUS: int = 2

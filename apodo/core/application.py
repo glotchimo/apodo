@@ -5,11 +5,11 @@ apodo.application
 This module contains the `Application` class.
 """
 
-from ..net.connection import Connection
-from ..net.request import Request
-from ..net.router import Router
-from ..util.exceptions import DuplicatedBlueprint, ReverseNotFound
-from .blueprint import Blueprint
+from apodo.core.blueprint import Blueprint
+from apodo.net.connection import Connection
+from apodo.net.request import Request
+from apodo.net.router import Router
+from apodo.util.exceptions import DuplicatedBlueprint, ReverseNotFound
 
 
 class Application(Blueprint):

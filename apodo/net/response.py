@@ -6,8 +6,8 @@ from functools import partial
 from inspect import isasyncgenfunction
 from typing import Callable
 
-from ..util.constants import ALL_STATUS_CODES
-from .connection import Connection
+from apodo.net.connection import Connection
+from apodo.util.constants import ALL_STATUS_CODES
 
 current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
@@ -119,12 +119,12 @@ class Response:
         return self.__class__(**params)
 
     def send(self, protocol: Connection):
-        # We check if the protocol is writable because we wanna make sure we aren't making the write buffer
+        # We check if the connection is writable because we wanna make sure we aren't making the write buffer
         # surpass the high-mark. To actually process the next response we need to call after_response()
         # but if we don't know yet if the client consumed the response we could be generating responses too fast
         # and blow up the server memory... that's why we schedule the after_response() call.
         # Since the content of this response is already in memory, we take a shortcut
-        # and add it to the buffers anyway. At this moment, protocol is not reading the socket until the write buffer
+        # and add it to the buffers anyway. At this moment, connection is not reading the socket until the write buffer
         # is consumed by the client.
         if self.headers or self.cookies:
             protocol.transport.write(self.encode() + self.content)
@@ -222,7 +222,7 @@ class StreamingResponse(Response):
         )
         streaming_task = protocol.loop.create_task(task())
 
-        # Creating the timeout task and setting it in the protocol so after_response()
+        # Creating the timeout task and setting it in the connection so after_response()
         # can correctly cancel it if needed.
         if self.complete_timeout > 0:
             protocol.timeout_task = protocol.loop.call_later(

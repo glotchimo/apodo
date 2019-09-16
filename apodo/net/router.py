@@ -7,14 +7,9 @@ This module contains the `RouterStrategy` and `Router` classes.
 
 import re
 
-from ..core.application import Application
-from ..core.blueprint import Blueprint
-from ..util.exceptions import MethodNotAllowed, ReverseNotFound
-from ..util.utils import clean_methods, clean_route_name
-from .connection import Connection
-from .request import Request
-from .response import Response
-from .route import Route
+from apodo.net.request import Request
+from apodo.net.route import Route
+from apodo.util.exceptions import MethodNotAllowed, ReverseNotFound
 
 
 class Router:

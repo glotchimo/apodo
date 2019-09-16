@@ -12,8 +12,8 @@ from datetime import datetime, timezone
 from email.utils import formatdate
 from threading import Thread
 
-from ...core.application import Application
-from ...net.connection import ConnectionStatus
+from apodo.core.application import Application
+from apodo.net.connection import PENDING_STATUS, PROCESSING_STATUS
 
 
 class Reaper(Thread):
@@ -56,7 +56,7 @@ class Reaper(Thread):
         now = time.time()
         for connection in self.app.connections.copy():
             if (
-                connection.get_status() == ConnectionStatus.PROCESSING_REQUEST
+                connection.get_status() == PROCESSING_STATUS
                 and now - connection.get_last_task_time() >= self.worker_timeout
             ):
                 os.kill(os.getpid(), signal.SIGKILL)
@@ -65,7 +65,7 @@ class Reaper(Thread):
         """ Checks potentially idle connections, soft-stops them. """
         now = time.time()
         for connection in self.connections.copy():
-            if connection.get_status() == ConnectionStatus.PENDING and (
+            if connection.get_status() == PENDING_STATUS and (
                 now - connection.get_last_task_time() > self.keep_alive_timeout
             ):
                 connection.stop()

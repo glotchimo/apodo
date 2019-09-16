@@ -9,7 +9,7 @@ import time
 from threading import Thread
 from typing import Callable
 
-from ...core.application import Application
+from apodo.core.application import Application
 
 
 class Necromancer(Thread):

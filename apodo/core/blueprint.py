@@ -8,8 +8,8 @@ This module contains the `Blueprint` class.
 from inspect import iscoroutinefunction
 from typing import Callable
 
-from ..net.route import Route
-from ..util.exceptions import ConflictingPrefixes, DuplicatedBlueprint
+from apodo.net.route import Route
+from apodo.util.exceptions import ConflictingPrefixes, DuplicatedBlueprint
 
 
 class Blueprint:

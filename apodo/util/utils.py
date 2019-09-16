@@ -12,6 +12,24 @@ import time
 from typing import Iterable, Tuple, Union
 
 
+class RequestParams:
+    def __init__(self, values: dict):
+        self.values = values
+
+    def __getattr__(self, item):
+        return getattr(self.values, item)
+
+    def __getitem__(self, item):
+        return self.values[item]
+
+    def get(self, item):
+        v = self.values.get(item)
+        return v[0] if v else None
+
+    def get_list(self, item, default=None):
+        return self.values.get(item, default or [])
+
+
 def bind(host: str, port: int, timeout: int = 10):
     """ Binds to socket when available.
 

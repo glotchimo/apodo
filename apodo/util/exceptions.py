@@ -5,9 +5,6 @@ apodo.exceptions
 This module contains custom exceptions.
 """
 
-from inspect import signature
-from typing import Callable, get_type_hints
-
 
 class ApodoException(Exception):
     pass

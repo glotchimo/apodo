@@ -7,13 +7,12 @@ This module contains the `Route` class.
 
 from typing import List, Tuple
 
-from ..core.application import Application
-from ..core.blueprint import Blueprint
-from ..util.exceptions import MethodNotAllowed, ReverseNotFound
-from ..util.utils import clean_methods, clean_route_name
-from .connection import Connection
-from .request import Request
-from .response import Response
+from apodo.core.application import Application
+from apodo.core.blueprint import Blueprint
+from apodo.net.connection import Connection
+from apodo.net.request import Request
+from apodo.net.response import Response
+from apodo.util.utils import clean_methods, clean_route_name
 
 
 class Route:
