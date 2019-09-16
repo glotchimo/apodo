@@ -27,20 +27,20 @@ class Handler(Process):
 
     This class controls the socket-level operations around request handling.
 
-    :param `app`: The current `Application` object.
-    :param `bind`: A `str` host to bind to.
-    :param `port`: A `int` port to bind to.
-    :param `socket`: (optional) An existing `socket` to use.
+    :param app: The current `Application` object.
+    :param host: A `str` host to bind to.
+    :param port: A `int` port to bind to.
+    :param sock: (optional) An existing `socket` to use.
     """
 
-    def __init__(self, app: Application, host: str, port: int, socket=None):
+    def __init__(self, app: Application, host: str, port: int, sock=None):
         super().__init__()
 
         self.app = app
         self.host = host
         self.port = port
         self.daemon = True
-        self.socket = socket
+        self.socket = sock
 
     def run(self):
         if not self.socket:

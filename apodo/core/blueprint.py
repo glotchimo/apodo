@@ -16,9 +16,9 @@ class Blueprint:
     """ Implements the `Blueprint` class.
 
     This class enables the modularization of an application by
-    delegating routes to seperate `Blueprint` objects at runtime.
+    delegating routes to separate `Blueprint` objects at runtime.
 
-    :param `hosts`: A `list` of `str` hosts.
+    :param hosts: A `list` of `str` hosts.
     """
 
     def __init__(self, hosts: list = None):
@@ -34,10 +34,10 @@ class Blueprint:
     def route(self, path, name=None, methods=None, hosts: list = None) -> Callable:
         """ Wraps a method to register a new route.
 
-        :param `path`: A `str` URL path.
-        :param `name`: A `str` name for the route.
-        :param `methods`: A `list` of accepted `str` HTTP methods.
-        :param `hosts`: A `list` of `str` hosts.
+        :param path: A `str` URL path.
+        :param name: A `str` name for the route.
+        :param methods: A `list` of accepted `str` HTTP methods.
+        :param hosts: A `list` of `str` hosts.
         """
 
         def register(handler):

@@ -110,8 +110,8 @@ class Router:
     def _check_method(self, url: bytes, method: bytes):
         """ Checks the validity of a method for a given URL.
 
-        :param `url`: A `bytes` representation of the URL.
-        :param `method`: A `bytes` representation of the method.
+        :param url: A `bytes` representation of the URL.
+        :param method: A `bytes` representation of the method.
         """
         allowed = []
 

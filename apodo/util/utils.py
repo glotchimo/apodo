@@ -15,9 +15,9 @@ from typing import Iterable, Tuple, Union
 def bind(host: str, port: int, timeout: int = 10):
     """ Binds to socket when available.
 
-    :param `host`: A `str` host to connect to.
-    :param `port`: An `int` TCP port to connect to.
-    :param `timeout`: An `int` count of seconds to wait before timing out.
+    :param host: A `str` host to connect to.
+    :param port: An `int` TCP port to connect to.
+    :param timeout: An `int` count of seconds to wait before timing out.
     """
     sock = socket.socket()
     sock.settimeout(timeout)
@@ -49,9 +49,9 @@ def pause():
 def clean_methods(methods: Iterable[Union[str, bytes]]) -> Tuple[bytes]:
     """ Cleans HTTP method values.
 
-    :param `methods`: An iterable of method `str`s.
+    :param methods: An iterable of method `str`s.
 
-    :return: A tuple of `bytes` with each HTTP method.
+    :return: A `tuple` of `bytes` with each HTTP method.
     """
     if methods:
         parsed_methods = set()

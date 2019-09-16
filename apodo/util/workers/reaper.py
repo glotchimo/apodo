@@ -21,7 +21,7 @@ class Reaper(Thread):
 
     This class automatically kills/cleans idle/dead connections.
 
-    :param `app`: The current `Application` object.
+    :param app: The current `Application` object.
     """
 
     def __init__(self, app: Application):

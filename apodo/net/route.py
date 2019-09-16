@@ -19,10 +19,10 @@ from .response import Response
 class Route:
     """ Implements the `Route` class.
 
-    :param `path`: A `bytes`-like representation of the path.
-    :param `handler`: I have no clue what this object is.
-    :param `app`: The active `Application` instance.
-    :param `parent`: The `Route`'s parent, a `Blueprint` object.
+    :param path: A `bytes`-like representation of the path.
+    :param handler: I have no clue what this object is.
+    :param app: The active `Application` instance.
+    :param parent: The `Route`'s parent, a `Blueprint` object.
     """
 
     def __init__(

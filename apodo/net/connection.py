@@ -5,7 +5,7 @@ apodo.connection
 This module contains the `Connection` class.
 """
 
-from asyncio import CancelledError, Event, Task, Transport, sleep
+from asyncio import AbstractEventLoop, Event, Task, Transport, sleep
 from time import time
 
 from ..core.application import Application
@@ -29,23 +29,27 @@ class Connection:
     This class is instantiated per connection received by the server.
     It controls all reading and writing operations from and to the client.
 
-    :param `app`: The current `Application` object.
-    :param `loop`: An event loop.
-    :param `protocol`: The `bytes` protocol of the connection.
-    :param `parser`: An `HttpParser` object.
+    :param app: The current `Application` object.
+    :param loop: An event loop.
+    :param protocol: The `bytes` protocol of the connection.
+    :param parser: An `HttpParser` object.
     """
 
-    def __init__(self, app: Application, loop: object):
+    def __init__(
+        self,
+        app: Application,
+        loop: AbstractEventLoop,
+        protocol: bytes,
+        parser: HttpParser,
+    ):
         self.app: Application = app
-        self.loop: object = loop
-        self.protocol: bytes = b"1.1"
+        self.loop: AbstractEventLoop = loop
 
         self.transport: Transport = None
         self.stream: Stream = Stream(self)
+        self.parser: HttpParser = parser or HttpParser()
 
-        self.parser: HttpParser = HttpParser(
-            self, app.server_limits.max_headers_size, app.limits.max_body_size
-        )
+        self.protocol: bytes = protocol or b"1.1"
 
         self.status: int = PENDING_STATUS
         self.writable: bool = True
@@ -57,18 +61,15 @@ class Connection:
         self.last_task_time: time = time()
         self._stopped: bool = False
 
-        self.keep_alive = app.server_limits.keep_alive_timeout > 0
         self.request_class = self.app.request_class
         self.router = self.app.router
-        self.log = self.app.log_handler
         self.queue = self.stream.queue
-        self.write_buffer = app.server_limits.write_buffer
 
     async def handle_request(self, request: Request, route: Route):
         """ Handles an incoming request.
 
-        :return `request`: A `Request` object.
-        :return `route`: The corresponding `Route` object.
+        :return request: A `Request` object.
+        :return route: The corresponding `Route` object.
         """
         response: Response = await route.call_handler(request)
         response.send(self)
@@ -80,7 +81,7 @@ class Connection:
     def connection_made(self, transport: Transport):
         """ Localizes the transport and adds the connection to the app.
 
-        :param `transport`: The connection stream's `Transport` object.
+        :param transport: The connection stream's `Transport` object.
         """
         self.transport: Transport = transport
         self.app.connections.add(self)
@@ -88,7 +89,7 @@ class Connection:
     def data_received(self, data: bytes):
         """ Sends received data to the parser.
 
-        :param `data`: A `bytes` representation of the incoming data.
+        :param data: A `bytes` representation of the incoming data.
         """
         self.status = RECEIVING_STATUS
 
@@ -110,24 +111,18 @@ class Connection:
             self.transport.resume_reading()
             self.readable = True
 
-    def on_headers_complete(
-        self, headers: Headers, url: bytes, method: bytes, upgrade: int
-    ):
+    def on_headers_complete(self, headers: Headers, url: bytes, method: bytes):
         """ Carries out response flow once headers have been parsed.
 
-        :param `headers`: A `Headers` object.
-        :param `url`: A `bytes` representation of the URL.
-        :param `method`: A `bytes` representation of the method.
+        :param headers: A `Headers` object.
+        :param url: A `bytes` representation of the URL.
+        :param method: A `bytes` representation of the method.
         """
         request: Request = self.request_class(url, headers, method, self.stream, self)
         route: Route = self.router.get_route(request)
 
         self.last_task_time = time()
         self.current_task = Task(self.handle_request(request, route), loop=self.loop)
-
-        self.timeout_task = self.loop.call_later(
-            route.limits.timeout, self.cancel_request
-        )
 
     def on_body(self, body: bytes):
         """ Reads the body of the request.
@@ -150,7 +145,7 @@ class Connection:
     def after_response(self, response: Response):
         """ Handles after-response network flow.
 
-        :param `response`: A `Response` object.
+        :param response: A `Response` object.
         """
         self.status: int = PENDING_STATUS
 
@@ -170,7 +165,7 @@ class Connection:
     async def write(self, data: bytes):
         """ Writes data to the client.
 
-        :param `data`: A `bytes` representation of data to return.
+        :param data: A `bytes` representation of data to return.
         """
         self.transport.write(data)
 

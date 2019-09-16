@@ -18,8 +18,8 @@ class Application(Blueprint):
     This is a subclass of `Blueprint`, which defines the base utilities
     for the app, with `Application` managing state and session.
 
-    :param `url_scheme`: A `str` repressenting the URL scheme, default being http.
-    :param `request_class`: A `Request` class.
+    :param url_scheme: A `str` representing the URL scheme, default being http.
+    :param request_class: A `Request` class.
     """
 
     current_time: str = None
@@ -54,8 +54,8 @@ class Application(Blueprint):
         parent and prefixes, registers any existing routes, and then sets up
         any hooks.
 
-        :param `blueprint`: A `Blueprint` object to add.
-        :param `prefixes`: A `dict` of prefixes.
+        :param blueprint: A `Blueprint` object to add.
+        :param prefixes: A `dict` of prefixes.
         """
         if blueprint.parent:
             raise DuplicatedBlueprint()
@@ -70,13 +70,13 @@ class Application(Blueprint):
     def _register_routes(self, blueprint, prefixes):
         """ Registers routes from a `Blueprint`.
 
-        This method first saerches through the provided prefixes for nested blueprints,
+        This method first searches through the provided prefixes for nested blueprints,
         and recursively calls itself with those objects. Following that, the blueprint's
         app is set as well as any routes it has. Then, the routes are added to the app's
         router.
 
-        :param `blueprint`: A `Blueprint` object.
-        :param `prefixes`: (optional) A `dict` of prefixes.
+        :param blueprint: A `Blueprint` object.
+        :param prefixes: (optional) A `dict` of prefixes.
         """
         for name, pattern in prefixes.items():
             for (nested_blueprint, nested_prefixes) in blueprint.blueprints.items():
@@ -109,8 +109,8 @@ class Application(Blueprint):
         This method constructs a URL from a given route name, and will build a full
         URL from server_name and url_scheme if _external is set to True.
 
-        :param `_name`: The `str` name of a route.
-        :param `_external`: A `bool` determining the use of an external URL.
+        :param _name: The `str` name of a route.
+        :param _external: A `bool` determining the use of an external URL.
 
         :return url: A `str` URL.
         """

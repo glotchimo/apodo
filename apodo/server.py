@@ -27,7 +27,6 @@ class Apodo(Application):
     current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
     def __init__(self):
-        self.components.add(self)
         self.add_blueprint(self)
         self.initialized = True
 
