@@ -40,24 +40,24 @@ class Blueprint:
         :param hosts: A `list` of `str` hosts.
         """
 
-        def register(handler):
-            if not iscoroutinefunction(handler):
+        def register(view):
+            if not iscoroutinefunction(view):
                 raise TypeError(
-                    f"Your route handler must be an async function. (Handler: {handler})"
+                    f"Your route handler must be an async function. (View: {view})"
                 )
 
             self.add_route(
                 Route(
                     path.encode(),
-                    handler,
+                    view,
                     methods=tuple(methods or (b"GET",)),
                     parent=self,
-                    name=handler.__name__ or name,
+                    name=view.__name__ or name,
                     hosts=hosts or self.hosts,
                 )
             )
 
-            return handler
+            return view
 
         return register
 
@@ -65,13 +65,17 @@ class Blueprint:
         self.routes.append(route)
 
     def add_blueprint(self, blueprint, prefixes: dict = None):
-        if not prefixes:
-            prefixes = {"": ""}
+        """ Adds a nested blueprint to the current blueprint.
 
+        :param blueprint: A `Blueprint` to nest.
+        :param prefixes: A `dict` of prefixes.
+        """
         if blueprint.parent:
             raise DuplicatedBlueprint(
                 "You cannot add a blueprint twice. Use more prefixes or different hierarchy."
             )
+
+        prefixes = prefixes or {"": ""}
 
         for key in prefixes.keys():
             for prefix in self.blueprints.values():

@@ -47,12 +47,8 @@ class Application(Blueprint):
             )
         self.request_class = request_class
 
-    def add_blueprint(self, blueprint, prefixes=None):
-        """ Adds a blueprint to the application.
-
-        This method ensures that a given blueprint is new, configures its
-        parent and prefixes, registers any existing routes, and then sets up
-        any hooks.
+    def add_blueprint(self, blueprint, prefixes: dict = None):
+        """ Adds a top-level blueprint to the application.
 
         :param blueprint: A `Blueprint` object to add.
         :param prefixes: A `dict` of prefixes.
@@ -123,9 +119,9 @@ class Application(Blueprint):
 
         root = ""
         if _external:
-            if not self.server_name or not self.url_scheme:
+            if not self.url_scheme:
                 raise Exception("Please configure the server_name and url_scheme.")
 
-            root = self.url_scheme + "://" + self.server_name
+            root = self.url_scheme + "://"
 
         return root + route.path.decode()
