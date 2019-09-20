@@ -14,6 +14,14 @@ current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
 
 class Response:
+    """ Implements the `Response` class.
+
+    :param content: A `bytes` representation of the response's content.
+    :param status_code: (default 200) An `int` HTTP status code.
+    :param headers: (optional) A `dict` of headers to send with the response.
+    :param cookies: (optional) A `dict` of cookie headers to send with the response.
+    """
+
     def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
         self.status_code = status_code
         self.content = content
