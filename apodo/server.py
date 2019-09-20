@@ -5,13 +5,11 @@ apodo.server
 This module contains the core `Apodo` class.
 """
 
-import sys
 from email.utils import formatdate
 from functools import partial
 from multiprocessing import cpu_count
 
 from .core.application import Application
-from .net.request import Request
 from .util.utils import bind, pause
 from .util.workers.handler import Handler
 from .util.workers.necromancer import Necromancer
@@ -32,22 +30,14 @@ class Apodo(Application):
         self.add_blueprint(self)
         self.initialized = True
 
-    def run(
-        self,
-        host: str = "127.0.0.1",
-        port: int = 5000,
-        workers: int = None,
-        block: bool = True,
-    ):
+    def run(self, host: str = "127.0.0.1", port: int = 5000, workers: int = None, block: bool = True):
         spawner = partial(Handler, self, host, port)
         for _ in range(0, (workers or cpu_count())):
             worker = spawner()
             worker.start()
             self.workers.append(worker)
 
-        Necromancer(
-            self.workers, spawner=spawner, interval=self.server_limits.worker_timeout
-        ).start()
+        Necromancer(self.workers, spawner=spawner, interval=self.server_limits.worker_timeout).start()
 
         bind(host, port)
         print("# Apodo # http://" + str(host) + ":" + str(port))

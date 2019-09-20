@@ -11,8 +11,8 @@ from urllib.parse import ParseResult, parse_qs, urlparse
 
 from apodo.net.connection import Connection
 from apodo.net.headers import Headers
+from apodo.util.exceptions import InvalidJSON
 from apodo.util.stream import Stream
-from apodo.util.exceptions import InvalidJSON, StreamAlreadyConsumed
 from apodo.util.utils import RequestParams
 
 
@@ -26,14 +26,7 @@ class Request:
     :param connection: A `Connection` object.
     """
 
-    def __init__(
-        self,
-        url: bytes,
-        headers: Headers,
-        method: bytes,
-        stream: Stream,
-        connection: Connection,
-    ):
+    def __init__(self, url: bytes, headers: Headers, method: bytes, stream: Stream, connection: Connection):
         self.url = url
         self.method = method
         self.headers = headers
@@ -84,16 +77,9 @@ class Request:
         if strict:
             ct = self.headers.get("Content-Type")
 
-            conditions = (
-                ct == "application/json"
-                and ct.startswith("application/")
-                and ct.endswith("+json")
-            )
+            conditions = ct == "application/json" and ct.startswith("application/") and ct.endswith("+json")
             if not any(conditions):
-                raise InvalidJSON(
-                    "JSON strict mode is enabled "
-                    "and HTTP header does not match the required format."
-                )
+                raise InvalidJSON("JSON strict mode is enabled " "and HTTP header does not match the required format.")
 
         loads = loads or json.loads
 

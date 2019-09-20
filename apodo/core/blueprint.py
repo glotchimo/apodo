@@ -42,13 +42,11 @@ class Blueprint:
 
         def register(view):
             if not iscoroutinefunction(view):
-                raise TypeError(
-                    f"Your route handler must be an async function. (View: {view})"
-                )
+                raise TypeError(f"Your view method must be an async function. (View: {view})")
 
             self.add_route(
                 Route(
-                    path.encode(),
+                    path._encode(),
                     view,
                     methods=tuple(methods or (b"GET",)),
                     parent=self,
@@ -71,18 +69,14 @@ class Blueprint:
         :param prefixes: A `dict` of prefixes.
         """
         if blueprint.parent:
-            raise DuplicatedBlueprint(
-                "You cannot add a blueprint twice. Use more prefixes or different hierarchy."
-            )
+            raise DuplicatedBlueprint("You cannot add a blueprint twice. Use more prefixes or different hierarchy.")
 
         prefixes = prefixes or {"": ""}
 
         for key in prefixes.keys():
             for prefix in self.blueprints.values():
                 if key == prefix:
-                    raise ConflictingPrefixes(
-                        f'Prefix "{key}" conflicts with an already existing prefix: {prefix}'
-                    )
+                    raise ConflictingPrefixes(f'Prefix "{key}" conflicts with an already existing prefix: {prefix}')
 
         blueprint.parent = self
         self.blueprints[blueprint] = prefixes

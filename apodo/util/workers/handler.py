@@ -9,14 +9,7 @@ import asyncio
 import signal
 from functools import partial
 from multiprocessing import Process
-from socket import (
-    IPPROTO_TCP,
-    SO_REUSEADDR,
-    SO_REUSEPORT,
-    SOL_SOCKET,
-    TCP_NODELAY,
-    socket,
-)
+from socket import IPPROTO_TCP, SO_REUSEADDR, SO_REUSEPORT, SOL_SOCKET, TCP_NODELAY, socket
 
 from apodo.core.application import Application
 from apodo.util.workers.reaper import Reaper
@@ -76,14 +69,10 @@ class Handler(Process):
         self.app.reaper = Reaper(app=self.app)
         self.app.reaper.start()
 
-        self.app.initialize()
+        self.app.__init__()
 
-        handler = partial(
-            self.app.handler, app=self.app, loop=self.app.loop, worker=self
-        )
-        server = self.app.loop.create_server(
-            handler, sock=self.socket, reuse_port=True, backlog=1000
-        )
+        handler = partial(self.app.handler, app=self.app, loop=self.app.loop, worker=self)
+        server = self.app.loop.create_server(handler, sock=self.socket, reuse_port=True, backlog=1000)
 
         self.app.loop.run_until_complete(server)
 
