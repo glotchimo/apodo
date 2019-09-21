@@ -29,6 +29,11 @@ class Response:
         self.cookies = cookies or []
 
     def clone(self, **kwargs):
+        """ Clones the current response.
+
+        This method generates a dictionary of parameters from the current instance's attributes,
+        overridden by any keyword arguments submitted by the caller.
+        """
         params = {
             "content": self.content,
             "status_code": self.status_code,
@@ -36,6 +41,7 @@ class Response:
             "cookies": self.cookies,
         }
         params.update(kwargs)
+
         return self.__class__(**params)
 
     def send(self, connection: Connection):
