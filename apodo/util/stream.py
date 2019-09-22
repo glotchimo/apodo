@@ -19,77 +19,63 @@ class Stream(deque):
     `StreamQueue` having an `items` property that was a `deque` object,
     is now a modified subclass of `deque`.
     """
-
-    def __init__(self, connection: Connection):
-        super().__init__()
-
+    def __init__(self, connection):
         self.connection: Connection = connection
         self.event: Event = Event()
-
         self.waiting: bool = False
         self.dirty: bool = False
-        self.consumed: bool = False
-
-    async def __aiter__(self):
-        if self.consumed:
-            raise StreamAlreadyConsumed()
-
-        while True:
-            self.connection.resume_reading()
-
-            data = await self.get()
-            if not data:
-                self.consumed = True
-                break
-
-            self.connection.pause_reading()
-            yield data
-
-    async def get(self) -> bytes:
-        try:
-            return self.popleft()
-        except IndexError:
-            if self.consumed:
-                return b""
-            else:
-                self.event.clear()
-                self.waiting = True
-
-                await self.event.wait()
-
-                self.event.clear()
-                self.waiting = False
-
-                return self.popleft()
-
-    def put(self, item: bytes):
-        self.dirty = True
-        self.append(item)
-
-        if self.waiting is True:
-            self.event.set()
-
-    def clear_queue(self):
-        if self.dirty:
-            self.clear()
-            self.event.clear()
-
-            self.dirty = False
-
-        self.consumed = False
-
-    def end(self):
-        if self.waiting:
-            self.put(b"")
-
-        self.consumed = True
+        self.finished: bool = False
 
     async def read(self) -> bytearray:
-        if self.consumed:
-            raise StreamAlreadyConsumed()
-
         data = bytearray()
         async for chunk in self:
             data.extend(chunk)
-
         return data
+
+    def end(self):
+        if self.waiting:
+            self._put(b"")
+        self.finished = True
+
+    def clear(self):
+        if self.dirty:
+            super().clear()
+            self.event.clear()
+            self.dirty = False
+        self.finished = False
+
+    async def __aiter__(self) -> bytes:
+        while True:
+            self.connection.resume_reading()
+            data = await self._get()
+            if not data:
+                self.consumed = True
+                break
+            self.connection.pause_reading()
+            yield data
+
+    async def _get(self) -> bytes:
+        """
+        It should eventually be determined whether this method (`get`, in the original) is used outside of the `__aiter__` method in this class. If not, it should be integrated into the `__aiter__` method.
+        """
+        try:
+            return self.popleft()
+        except IndexError:
+            if self.finished is True:
+                raise StreamAlreadyConsumed()
+            else:
+                self.event.clear()
+                self.waiting = True
+                await self.event.wait()
+                self.event.clear()
+                self.waiting = False
+                return self.popleft()
+
+    def _put(self, item: bytes):
+        """
+        It should eventually be determined whether this method (`put`, in the original) is used outside of the `end` method in this class. If not, it should be integrated into the `end` method.
+        """
+        self.dirty = True
+        self.append(item)
+        if self.waiting is True:
+            self.event.set()
