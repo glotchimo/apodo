@@ -1,16 +1,18 @@
 # Apodo
 ## A very fast and efficient async Python web server.
 
-Apodo is an asynchronous Python web server (and possibly framework) that derives from the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+Apodo is an asynchronous Python web server that derives from the core server of the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+
+The system is designed to be remarkably easy to use, and fast to deploy. It is the default internal server of the Domi web framework, and our goal is to create something that can plug easily into any existing web framework and make any and all deployment complications disappear. No more dealing with Nginx, Gunicorn, Uvicorn, or anything else. Internal servers don't need to suck!
 
 *"Apodo" is a derivative of the Greek word "αποδοτικότητα" or "apodotikótita", which means "efficiency".*
 
 **Check out the dev branch for the most up-to-date source.**
 
 ## Technical Goals
-- Go quick
-- Run clean
-- Stay simple
+- Run quick and clean
+- Be unparalleled in ease of setup and use
+- Serve at a production level
 
 ## Project Goals
 - Work together
@@ -20,9 +22,9 @@ Apodo is an asynchronous Python web server (and possibly framework) that derives
 "Your team's strength is not a function of the talent of individual members. It's a function of their collaboration, tenacity, and mutual respect."
 
 ## Development Plan
-Apodo, while derived from the Vibora framework, will be built with a new design philosophy in mind. We will reference the old source of Vibora as we build, but only for some lower-level concepts.
+Apodo, while derived from the core server of the Vibora framework, will be built with a new design philosophy in mind. We will reference the old source of Vibora as we build, but only for some lower-level concepts.
 
-A major pitfall of Vibora was its lack of strict system design guidelines, as well of its lack of documentation. Solid design is to be held in high regard along with functional speed, and design should not and will not be compromised for functional speed. Building a spaghetti dinner that runs very quickly is fine, but building a well-designed, fast, and scalable web framework is what we're more interested in.
+A major pitfall of Vibora was its lack of strict system design guidelines, as well of its lack of documentation. Solid design is to be held in high regard along with functional speed, and design should not and will not be compromised for functional speed. Building a spaghetti dinner that runs very quickly is fine, but building a well-designed, fast, and scalable web server is what we're more interested in.
 
 The plan for Apodo is to start with base functionality, and iteratively add features, with Vibora as a functional reference.
 
@@ -87,7 +89,7 @@ Other one-line commenting should be kept to a mininum but used effectively and c
 
 #### Soft Rules:
 - Put backticks (``) around object and variable names.
-- Wrap comments to 88 characters.
+- Wrap comments to 79 characters.
 - Capitalize the first letters of parameter and return descriptions.
 
 ### Typing
