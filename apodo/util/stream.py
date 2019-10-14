@@ -19,6 +19,7 @@ class Stream(deque):
     `StreamQueue` having an `items` property that was a `deque` object,
     is now a modified subclass of `deque`.
     """
+
     def __init__(self, connection):
         self.connection: Connection = connection
         self.event: Event = Event()

@@ -7,21 +7,18 @@ This module contains the `Connection` class.
 
 from asyncio import AbstractEventLoop, Event, Task, Transport, sleep
 from time import time
-
-from apodo.util.parser import HttpParser, HttpParserError
+from typing import Callable
 
 from apodo.core.application import Application
 from apodo.net.headers import Headers
 from apodo.net.request import Request, Stream
 from apodo.net.response import Response
 from apodo.net.router import Route
+from apodo.util.utils import parse_http
 
 PENDING_STATUS: int = 1
 RECEIVING_STATUS: int = 2
 PROCESSING_STATUS: int = 3
-EVENTS_BEFORE_ENDPOINT: int = 3
-EVENTS_AFTER_ENDPOINT: int = 4
-EVENTS_AFTER_RESPONSE_SENT: int = 5
 
 
 class Connection:
@@ -36,16 +33,15 @@ class Connection:
     :param app: The current `Application` object.
     :param loop: An event loop.
     :param protocol: The `bytes` protocol of the connection.
-    :param parser: An `HttpParser` object.
     """
 
-    def __init__(self, app: Application, loop: AbstractEventLoop, protocol: bytes, parser: HttpParser):
+    def __init__(self, app: Application, loop: AbstractEventLoop, protocol: bytes):
         self.app: Application = app
         self.loop: AbstractEventLoop = loop
 
         self.transport: Transport = None
         self.stream: Stream = Stream(self)
-        self.parser: HttpParser = parser or HttpParser()
+        self.parser: Callable = parse_http
 
         self.protocol: bytes = protocol or b"1.1"
 
@@ -89,8 +85,8 @@ class Connection:
         self.status = RECEIVING_STATUS
 
         try:
-            self.parser.feed_data(data)
-        except HttpParserError:
+            self.parser(data)
+        except Exception:
             self.pause_reading()
             self.close()
 
@@ -138,7 +134,7 @@ class Connection:
 
         :param body: A `bytes` representation of the request body.
         """
-        self.stream.put(body)
+        self.stream._put(body)
         self.pause_reading()
 
     def on_message_complete(self):

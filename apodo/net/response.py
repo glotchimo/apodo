@@ -22,7 +22,13 @@ class Response:
     :param cookies: (optional) A `dict` of cookie headers to send with the response.
     """
 
-    def __init__(self, content: bytes, status_code: int = 200, headers: dict = None, cookies: list = None):
+    def __init__(
+        self,
+        content: bytes,
+        status_code: int = 200,
+        headers: dict = None,
+        cookies: list = None,
+    ):
         self.status_code = status_code
         self.content = content
         self.headers = headers or {}
@@ -77,7 +83,9 @@ class Response:
         headers["Content-Length"] = len(self.content)
         headers["Date"] = current_time
 
-        content = f"HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n"
+        content = (
+            f"HTTP/1.1 {self.status_code} {ALL_STATUS_CODES[self.status_code]}\r\n"
+        )
 
         for header, value in headers.items():
             content += f"{header}: {value}\r\n"

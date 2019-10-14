@@ -45,7 +45,13 @@ class Route:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return all([other.path == self.path, other.view == self.view, other.methods == self.methods])
+            return all(
+                [
+                    other.path == self.path,
+                    other.view == self.view,
+                    other.methods == self.methods,
+                ]
+            )
         else:
             return False
 

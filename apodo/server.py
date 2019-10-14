@@ -30,14 +30,20 @@ class Apodo(Application):
         self.add_blueprint(self)
         self.initialized = True
 
-    def run(self, host: str = "127.0.0.1", port: int = 5000, workers: int = None, block: bool = True):
+    def run(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 5000,
+        workers: int = None,
+        block: bool = True,
+    ):
         spawner = partial(Handler, self, host, port)
         for _ in range(0, (workers or cpu_count())):
             worker = spawner()
             worker.start()
             self.workers.append(worker)
 
-        Necromancer(self.workers, spawner=spawner, interval=self.server_limits.worker_timeout).start()
+        Necromancer(self.workers, spawner=spawner).start()
 
         bind(host, port)
         print("# Apodo # http://" + str(host) + ":" + str(port))

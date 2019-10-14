@@ -42,7 +42,8 @@ class Application(Blueprint):
 
         if not issubclass(request_class, Request):
             raise ValueError(
-                "request_class must be a child of the Apodo Request class. " "(from apodo.request import Request)"
+                "request_class must be a child of the Apodo Request class. "
+                "(from apodo.request import Request)"
             )
         self.request_class = request_class
 
@@ -77,9 +78,13 @@ class Application(Blueprint):
             for (nested_blueprint, nested_prefixes) in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
                     if name and nested_name:
-                        merged_prefixes = {name + ":" + nested_name: pattern + nested_pattern}
+                        merged_prefixes = {
+                            name + ":" + nested_name: pattern + nested_pattern
+                        }
                     else:
-                        merged_prefixes = {name or nested_name: pattern + nested_pattern}
+                        merged_prefixes = {
+                            name or nested_name: pattern + nested_pattern
+                        }
 
                     self._register_routes(nested_blueprint, prefixes=merged_prefixes)
 

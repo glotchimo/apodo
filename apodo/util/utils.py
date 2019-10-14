@@ -85,3 +85,21 @@ def clean_methods(methods: Iterable[Union[str, bytes]]) -> Tuple[bytes]:
         return tuple(parsed_methods)
     else:
         return (b"GET",)
+
+
+def parse_http(http: str):
+    """ Parses an HTTP string and returns a `dict` of the event.
+
+    :param http: A decoded `str` HTTP request.
+    """
+    request, *headers, _, body = http.split("\r\n")
+    method, path, protocol = request.split(" ")
+    headers = dict(line.split(":", maxsplit=1) for line in headers)
+
+    return {
+        "method": method,
+        "path": path,
+        "protocol": protocol,
+        "headers": headers,
+        "body": body,
+    }
