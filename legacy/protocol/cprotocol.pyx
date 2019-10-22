@@ -77,8 +77,8 @@ cdef class Connection:
 
     cdef void handle_upgrade(self):
         """
-        
-        :return: 
+
+        :return:
         """
         websocket = self.route.websocket_handler(self.transport)
         self.loop.create_task(websocket.on_connect())
@@ -249,9 +249,9 @@ cdef class Connection:
 
     cdef void on_body(self, bytes body):
         """
-        
-        :param body: 
-        :return: 
+
+        :param body:
+        :return:
         """
         self.queue.put(body)
 
@@ -263,8 +263,8 @@ cdef class Connection:
 
     cdef void on_message_complete(self):
         """
-        
-        :return: 
+
+        :return:
         """
         # This is a signal to show the Stream consumer that the stream ended.
         self.queue.end()
@@ -279,9 +279,9 @@ cdef class Connection:
 
     cpdef void connection_made(self, transport: Transport):
         """
-        
-        :param transport: 
-        :return: 
+
+        :param transport:
+        :return:
         """
         transport.set_write_buffer_limits(self.write_buffer)
         self.transport = transport # type: Transport
@@ -289,9 +289,9 @@ cdef class Connection:
 
     cpdef void data_received(self, bytes data):
         """
-        
-        :param data: 
-        :return: 
+
+        :param data:
+        :return:
         """
         self.status = RECEIVING_STATUS
         try:
@@ -305,16 +305,16 @@ cdef class Connection:
 
     cpdef void connection_lost(self, exc):
         """
-        
-        :param exc: 
-        :return: 
+
+        :param exc:
+        :return:
         """
         self.close()
 
     cpdef void pause_reading(self):
         """
-        
-        :return: 
+
+        :return:
         """
         if self.readable:
             self.transport.pause_reading()
@@ -322,8 +322,8 @@ cdef class Connection:
 
     cpdef void resume_reading(self):
         """
-        
-        :return: 
+
+        :return:
         """
         if not self.readable:
             self.transport.resume_reading()
@@ -331,15 +331,15 @@ cdef class Connection:
 
     cpdef void pause_writing(self):
         """
-        
-        :return: 
+
+        :return:
         """
         self.writable = False
 
     cpdef void resume_writing(self):
         """
-         
-        :return: 
+
+        :return:
         """
         if not self.writable:
             self.writable = True
@@ -347,8 +347,8 @@ cdef class Connection:
 
     cpdef void close(self):
         """
-        
-        :return: 
+
+        :return:
         """
         if not self.closed:
             self.transport.close()
@@ -368,8 +368,8 @@ cdef class Connection:
 
     cpdef void stop(self):
         """
-        
-        :return: 
+
+        :return:
         """
         self._stopped = True
         if self.status == PENDING_STATUS:
@@ -377,22 +377,22 @@ cdef class Connection:
 
     cpdef bint is_closed(self):
         """
-        
-        :return: 
+
+        :return:
         """
         return self.closed
 
     cpdef int get_status(self):
         """
-        
-        :return: 
+
+        :return:
         """
         return self.status
 
     cpdef int get_last_task_time(self):
         """
-        
-        :return: 
+
+        :return:
         """
         return self.last_task_time
 
@@ -406,8 +406,8 @@ cdef class Connection:
 
     cpdef str client_ip(self):
         """
-        
-        :return: 
+
+        :return:
         """
         return self.transport.get_extra_info('peername')[0]
 
