@@ -1,5 +1,5 @@
 """
-gato.application
+apodo.application
 ~~~~~~~~~~~~~~~~
 
 This module implements the `Application` class.
@@ -17,7 +17,7 @@ from .responses import Response
 from .components import ComponentsEngine
 from .exceptions import ReverseNotFound, DuplicatedBlueprint
 from .templates.engine import TemplateEngine
-from .templates.extensions import GatoNodes
+from .templates.extensions import ApodoNodes
 from .static import StaticHandler
 from .limits import ServerLimits
 
@@ -64,7 +64,7 @@ class Application(Blueprint):
         self.handler = Connection
         self.router = Router(strategy=router_strategy)
         self.session_engine = sessions_engine
-        self.template_engine = TemplateEngine(extensions=[GatoNodes(self)])
+        self.template_engine = TemplateEngine(extensions=[ApodoNodes(self)])
         self.static = static or StaticHandler([])
         self.connections = set()
         self.workers = []
@@ -77,8 +77,8 @@ class Application(Blueprint):
         self.running = False
         if not issubclass(request_class, Request):
             raise ValueError(
-                "request_class must be a child of the Gato Request class. "
-                "(from gato.request import Request)"
+                "request_class must be a child of the Apodo Request class. "
+                "(from apodo.request import Request)"
             )
         self.request_class = request_class
         self._test_client = None
@@ -115,9 +115,7 @@ class Application(Blueprint):
                         if not hook.local:
                             self.add_hook(hook)
                         else:
-                            local_hooks.setdefault(hook.event_type, []).append(
-                                hook
-                            )
+                            local_hooks.setdefault(hook.event_type, []).append(hook)
 
                 setattr(blueprint, name, local_hooks)
 
@@ -133,10 +131,7 @@ class Application(Blueprint):
         :param `prefixes`: A `dict` of prefixes.
         """
         for name, pattern in prefixes.items():
-            for (
-                nested_blueprint,
-                nested_prefixes,
-            ) in blueprint.blueprints.items():
+            for (nested_blueprint, nested_prefixes) in blueprint.blueprints.items():
                 for nested_name, nested_pattern in nested_prefixes.items():
                     if name and nested_name:
                         merged_prefixes = {
@@ -147,9 +142,7 @@ class Application(Blueprint):
                             name or nested_name: pattern + nested_pattern
                         }
 
-                    self._register_routes(
-                        nested_blueprint, prefixes=merged_prefixes
-                    )
+                    self._register_routes(nested_blueprint, prefixes=merged_prefixes)
 
         blueprint.app = self
         for route in blueprint.routes:
@@ -193,9 +186,7 @@ class Application(Blueprint):
 
         :return `response`: (optional) A `Response` object.
         """
-        objects = (
-            (route.parent, self) if route and route.parent != self else (self,)
-        )
+        objects = (route.parent, self) if route and route.parent != self else (self,)
         for object in objects:
             for hook in object.hooks.get(hook_id, ()):
                 return hook.call_handler(components) or None
@@ -231,9 +222,7 @@ class Application(Blueprint):
         root = ""
         if _external:
             if not self.server_name or not self.url_scheme:
-                raise Exception(
-                    "Please configure the server_name and url_scheme."
-                )
+                raise Exception("Please configure the server_name and url_scheme.")
 
             root = self.url_scheme + "://" + self.server_name
 

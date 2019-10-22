@@ -1,5 +1,5 @@
 """
-gato.multipart.parser.pxd
+apodo.multipart.parser.pxd
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module implements the Cython headers of the SmartFile

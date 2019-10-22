@@ -3,3 +3,10 @@
 
 *.pyc
 __pycache__
+
+temp
+benchmarking
+
+apodo.egg-info
+
+.idea

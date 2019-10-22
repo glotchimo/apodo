@@ -1,23 +1,21 @@
 """
-apodo.headers.headers
-~~~~~~~~~~~~~~~~~~~~
+apodo.net.headers
+~~~~~~~~~~~~~~~~~
 
-This module implements the custom Headers class.
+This module contains the `Headers` class.
 """
 
 
-class Headers:
-    """ Implements `Headers`.
+class Headers(dict):
+    """ Implements the `Headers` class, a subclass of `dict`.
 
-    :param `raw`: a raw `list` of headers to parse. These headers should appear
-                  in `list` pairs, with index 0 being the name of the header,
-                  and index 1 being the value of the header.
+    :param raw: A raw `list` of headers to parse. These headers should appear
+                in `list` pairs, with index 0 being the name of the header,
+                and index 1 being the value of the header.
     """
 
     def __init__(self, raw=None):
-        self.raw = raw or []
-        self.values = None
-        self.evaluated = False
+        super().__init__(raw or [])
 
     def __getitem__(self, item: str):
         if not self.evaluated:
@@ -37,8 +35,8 @@ class Headers:
     def get(self, key, default=None):
         """ Gets a given header value by `key`.
 
-        :param `key`: A `str` key name to search for.
-        :param `default`: (optional) A replaceable default return value.
+        :param key: A `str` key name to search for.
+        :param default: (optional) A replaceable default return value.
         :return: The found header value.
         """
         if not self.evaluated:

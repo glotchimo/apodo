@@ -1,5 +1,5 @@
 """
-gato.headers.headers.pxd
+apodo.headers.headers.pxd
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module implements the Cython build of the custom Headers class.
