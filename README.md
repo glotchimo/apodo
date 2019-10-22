@@ -3,7 +3,7 @@
 
 Apodo is an asynchronous Python web server that derives from the core server of the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
 
-The system is designed to be remarkably easy to use, and fast to deploy. It is the default internal server of the Domi web framework, and our goal is to create something that can plug easily into any existing web framework and make any and all deployment complications disappear. No more dealing with Nginx, Gunicorn, Uvicorn, or anything else. Internal servers don't need to suck!
+The system is designed to be remarkably easy to use, and fast to deploy. It is the default internal server of the Domi web framework, and our goal is to create something that can plug easily into any existing web framework and make any and all deployment complications disappear. No more dealing with Gunicorn, Uvicorn, or anything else. Internal servers don't need to suck!
 
 *"Apodo" is a derivative of the Greek word "αποδοτικότητα" or "apodotikótita", which means "efficiency".*
 
