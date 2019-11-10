@@ -17,6 +17,8 @@ class Headers(dict):
     def __init__(self, raw=None):
         super().__init__(raw or [])
 
+        self.raw = raw
+
     def __getitem__(self, item: str):
         if not self.evaluated:
             self.eval()
