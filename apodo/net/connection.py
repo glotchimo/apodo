@@ -11,23 +11,25 @@ from typing import Callable
 
 from apodo.server import Server
 from apodo.net.headers import Headers
+from apodo.util.parser import Parser
 from apodo.util.stream import Stream
-from apodo.util.utils import parse_http
 
-PENDING_STATUS: int = 1
-RECEIVING_STATUS: int = 2
-PROCESSING_STATUS: int = 3
+STATUS_PENDING: int = 1
+STATUS_RECEIVING: int = 2
+STATUS_PROCESSING: int = 3
 
 
 class Connection:
     """ Implements the `Connection` class.
 
     This class is instantiated per connection received by the server.
-    It controls all transport-level reading and writing operations from and to the client.
+    It controls all transport-level reading and writing operations
+    from and to the client.
 
-    Many of the methods in the `Connection` class are callback methods for either
-    the network flow or parser flow. They are marked as such respectively with either 
-    the prefix (NFC) or (PFC) before high-level line of the docstring.
+    Many of the methods in the `Connection` class are callback methods 
+    for either the network flow or parser flow. They are marked as such 
+    respectively with either the prefix (NFC) or (PFC) before 
+    high-level line of the docstring.
 
     Many attributions that would be seen post-initialization would decrease
     performance, and are therefore set during initialization.
@@ -43,11 +45,11 @@ class Connection:
 
         self.transport: Transport = None
         self.stream: Stream = Stream(self)
-        self.parser: Callable = parse_http
+        self.parser: Parser = Parser(self)
 
         self.protocol: bytes = protocol or b"1.1"
 
-        self.status: int = PENDING_STATUS
+        self.status: int = STATUS_PENDING
         self.writable: bool = True
         self.readable: bool = True
         self.write_permission: Event = Event()
@@ -63,7 +65,7 @@ class Connection:
         self.current_task.cancel()
 
     def connection_made(self, transport: Transport):
-        """ (NFC) Localizes the transport and adds the connection to the app.
+        """ (NFC) Localizes the transport and adds the connection to the server.
 
         :param transport: The connection stream's `Transport` object.
         """
@@ -75,10 +77,10 @@ class Connection:
 
         :param data: A `bytes` representation of the incoming data.
         """
-        self.status = RECEIVING_STATUS
+        self.status = STATUS_RECEIVING
 
         try:
-            self.parser(data)
+            self.parser.parse(data)
         except Exception:
             self.pause_reading()
             self.close()
@@ -120,11 +122,11 @@ class Connection:
     def on_message_complete(self):
         """ (PFC) Closes the stream and sets up the process for monitoring. """
         self.stream.end()
-        self.status = PROCESSING_STATUS
+        self.status = STATUS_PROCESSING
 
     def after_response(self):
         """ Handles after-response network flow. """
-        self.status: int = PENDING_STATUS
+        self.status: int = STATUS_PENDING
 
         if not self.keep_alive:
             self.close()
@@ -186,5 +188,5 @@ class Connection:
     def stop(self):
         """ (NFC) Closes the connection and sets the connection to stopped. """
         self._stopped = True
-        if self.status == PENDING_STATUS:
+        if self.status == STATUS_PENDING:
             self.close()

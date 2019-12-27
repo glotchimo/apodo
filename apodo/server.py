@@ -9,7 +9,6 @@ from email.utils import formatdate
 from functools import partial
 from multiprocessing import cpu_count
 
-from .core.application import Application
 from .net.connection import Connection
 from .util.utils import bind, pause
 from .util.workers.handler import Handler
