@@ -1,1 +1,0 @@
-from .obj import *
