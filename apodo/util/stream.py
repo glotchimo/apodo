@@ -4,7 +4,6 @@ apodo.util.stream
 
 This module contains the `Stream` class.
 """
-
 from asyncio import Event
 from collections import deque
 
@@ -57,7 +56,9 @@ class Stream(deque):
 
     async def _get(self) -> bytes:
         """
-        It should eventually be determined whether this method (`get`, in the original) is used outside of the `__aiter__` method in this class. If not, it should be integrated into the `__aiter__` method.
+        It should eventually be determined whether this method (`get`, in the original)
+        is used outside of the `__aiter__` method in this class.
+        If not, it should be integrated into the `__aiter__` method.
         """
         try:
             return self.popleft()
@@ -74,9 +75,11 @@ class Stream(deque):
 
     def _put(self, item: bytes):
         """
-        It should eventually be determined whether this method (`put`, in the original) is used outside of the `end` method in this class. If not, it should be integrated into the `end` method.
+        It should eventually be determined whether this method (`put`, in the original)
+        is used outside of the `end` method in this class.
+        If not, it should be integrated into the `end` method.
         """
         self.dirty = True
-        self.append(item)
+        self.serverend(item)
         if self.waiting is True:
             self.event.set()

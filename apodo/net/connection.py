@@ -4,48 +4,55 @@ apodo.connection
 
 This module contains the `Connection` class.
 """
-
-from asyncio import AbstractEventLoop, Event, Task, Transport, sleep
+from asyncio import AbstractEventLoop
+from asyncio import Event
+from asyncio import sleep
+from asyncio import Task
+from asyncio import Transport
 from time import time
 from typing import Callable
 
-from apodo.core.application import Application
 from apodo.net.headers import Headers
-from apodo.net.request import Request, Stream
-from apodo.net.response import Response
-from apodo.net.router import Route
-from apodo.util.utils import parse_http
+from apodo.server import Server
+from apodo.util.parser import Parser
+from apodo.util.stream import Stream
 
-PENDING_STATUS: int = 1
-RECEIVING_STATUS: int = 2
-PROCESSING_STATUS: int = 3
+STATUS_PENDING: int = 1
+STATUS_RECEIVING: int = 2
+STATUS_PROCESSING: int = 3
 
 
 class Connection:
     """ Implements the `Connection` class.
 
     This class is instantiated per connection received by the server.
-    It controls all reading and writing operations from and to the client.
+    It controls all transport-level reading and writing operations
+    from and to the client.
+
+    Many of the methods in the `Connection` class are callback methods
+    for either the network flow or parser flow. They are marked as such
+    respectively with either the prefix (NFC) or (PFC) before
+    high-level line of the docstring.
 
     Many attributions that would be seen post-initialization would decrease
     performance, and are therefore set during initialization.
 
-    :param app: The current `Application` object.
+    :param server: The current `Server` instance.
     :param loop: An event loop.
     :param protocol: The `bytes` protocol of the connection.
     """
 
-    def __init__(self, app: Application, loop: AbstractEventLoop, protocol: bytes):
-        self.app: Application = app
+    def __init__(self, server: Server, loop: AbstractEventLoop, protocol: bytes):
+        self.server: Server = server
         self.loop: AbstractEventLoop = loop
 
         self.transport: Transport = None
         self.stream: Stream = Stream(self)
-        self.parser: Callable = parse_http
+        self.parser: Parser = Parser(self)
 
         self.protocol: bytes = protocol or b"1.1"
 
-        self.status: int = PENDING_STATUS
+        self.status: int = STATUS_PENDING
         self.writable: bool = True
         self.readable: bool = True
         self.write_permission: Event = Event()
@@ -53,84 +60,62 @@ class Connection:
         self.timeout_task: Task = None
         self.closed: bool = False
         self.last_task_time: time = time()
+        self.keep_alive = True
         self._stopped: bool = False
 
-        self.request_class = self.app.request_class
-        self.router = self.app.router
-
     def cancel_request(self):
-        """ Cancels a current task/request.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Cancels a current task/request. """
         self.current_task.cancel()
 
     def connection_made(self, transport: Transport):
-        """ Localizes the transport and adds the connection to the app.
-
-        * NETWORK FLOW CALLBACK *
+        """ (NFC) Localizes the transport and adds the connection to the server.
 
         :param transport: The connection stream's `Transport` object.
         """
         self.transport: Transport = transport
-        self.app.connections.add(self)
+        self.server.connections.add(self)
 
     def data_received(self, data: bytes):
-        """ Sends received data to the parser.
-
-        * NETWORK FLOW CALLBACK *
+        """ (NFC) Sends received data to the parser.
 
         :param data: A `bytes` representation of the incoming data.
         """
-        self.status = RECEIVING_STATUS
+        self.status = STATUS_RECEIVING
 
         try:
-            self.parser(data)
+            self.parser.parse(data)
         except Exception:
             self.pause_reading()
             self.close()
 
     def pause_reading(self):
-        """ Pauses the transport reading the stream.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Pauses the transport reading the stream. """
         if self.readable:
             self.transport.pause_reading()
             self.readable = False
 
     def resume_reading(self):
-        """ Resumes the transport reading the stream.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Resumes the transport reading the stream. """
         if not self.readable:
             self.transport.resume_reading()
             self.readable = True
 
     def on_headers_complete(self, headers: Headers, url: bytes, method: bytes):
-        """ Carries out response flow once headers have been parsed.
-
-        * HTTP PARSER CALLBACK *
+        """ (PFC) Carries out response flow once headers have been parsed.
 
         :param headers: A `Headers` object.
         :param url: A `bytes` representation of the URL.
         :param method: A `bytes` representation of the method.
         """
-        request: Request = self.request_class(url, headers, method, self.stream, self)
-        route: Route = self.router.get_route(request)
-
         self.last_task_time = time()
-        self.current_task = Task(self.send_response(route, request), loop=self.loop)
+        # self.current_task = Task(self.send_response(), loop=self.loop)
 
     def on_body(self, body: bytes):
-        """ Reads the body of the request.
+        """ (PFC) Reads the body of the request.
 
         This method pauses the reading of the socket while the response
         is being processed, helping prevent DoS, until the user explicitly
         consumes the stream.
-
-        * HTTP PARSER CALLBACK *
 
         :param body: A `bytes` representation of the request body.
         """
@@ -138,16 +123,13 @@ class Connection:
         self.pause_reading()
 
     def on_message_complete(self):
-        """ Closes the stream and sets up the process for monitoring.
-
-        * HTTP PARSER CALLBACK *
-        """
+        """ (PFC) Closes the stream and sets up the process for monitoring. """
         self.stream.end()
-        self.status = PROCESSING_STATUS
+        self.status = STATUS_PROCESSING
 
     def after_response(self):
         """ Handles after-response network flow. """
-        self.status: int = PENDING_STATUS
+        self.status: int = STATUS_PENDING
 
         if not self.keep_alive:
             self.close()
@@ -173,51 +155,33 @@ class Connection:
             await self.write_permission.wait()
 
     def pause_writing(self):
-        """ Pauses the transport writing to the client.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Pauses the transport writing to the client. """
         self.writable = False
 
     def resume_writing(self):
-        """ Resumes the transport writing to the client.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Resumes the transport writing to the client. """
         if not self.writable:
             self.writable = True
             self.write_permission.set()
 
-    async def send_response(self, route: Route, request: Request):
-        """ Sends the response back to the client.
+    # async def send_response(self):
+    #     """ Sends the response back to the client.
 
-        :param route: The targeted `Route`.
-        :param request: The received `Request`.
-        """
-        response: Response = await route.view(request)
-        response.send(self)
-
-    def connection_lost(self):
-        """ Closes the connection if it is lost.
-
-        * NETWORK FLOW CALLBACK *
-        """
+    #     :param route: The targeted `Route`.
+    #     :param request: The received `Request`.
+    #     """
+    #     response: Response = await route.view(request)
+    #     response.send(self)
 
     def close(self):
-        """ Closes the transport connection.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Closes the transport connection. """
         if not self.closed:
             self.transport.close()
-            self.app.connections.discard(self)
+            self.server.connections.discard(self)
             self.closed = True
 
     async def scheduled_close(self, timeout: int = 30):
-        """ Closes the connection after a scheduled timeout.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Closes the connection after a scheduled timeout. """
         buffer_size = self.transport.get_write_buffer_size
         while buffer_size() > 0:
             await sleep(0.5)
@@ -225,10 +189,7 @@ class Connection:
         self.close()
 
     def stop(self):
-        """ Closes the connection and sets the connection to stopped.
-
-        * NETWORK FLOW CALLBACK *
-        """
+        """ (NFC) Closes the connection and sets the connection to stopped. """
         self._stopped = True
-        if self.status == PENDING_STATUS:
+        if self.status == STATUS_PENDING:
             self.close()

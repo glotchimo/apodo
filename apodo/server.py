@@ -4,31 +4,39 @@ apodo.server
 
 This module contains the core `Apodo` class.
 """
-
 from email.utils import formatdate
 from functools import partial
 from multiprocessing import cpu_count
 
-from .core.application import Application
-from .util.utils import bind, pause
+from .net.connection import Connection
+from .util.utils import bind
+from .util.utils import pause
 from .util.workers.handler import Handler
 from .util.workers.necromancer import Necromancer
 
 
-class Apodo(Application):
-    """ Implements the `Apodo` class.
+class Server:
+    """ Implements the `Server` class.
 
-    This class subclasses the Application and thus Blueprint objects
-    and controls all server instance operations.
+    This class controls the high-level operations of the server,
+    and contains other attribute/instance data.
     """
 
     current_time: str = formatdate(timeval=None, localtime=False, usegmt=True)
 
     def __init__(self):
         super().__init__()
-
-        self.add_blueprint(self)
         self.initialized = True
+
+        self.handler = Connection
+
+        self.connections = set()
+        self.workers = []
+
+        self.loop = None
+
+        self.initialized = False
+        self.running = False
 
     def run(
         self,
@@ -41,12 +49,12 @@ class Apodo(Application):
         for _ in range(0, (workers or cpu_count())):
             worker = spawner()
             worker.start()
-            self.workers.append(worker)
+            self.workers.serverend(worker)
 
         Necromancer(self.workers, spawner=spawner).start()
 
         bind(host, port)
-        print("# Apodo # http://" + str(host) + ":" + str(port))
+        print("Apodo - Running on http://" + str(host) + ":" + str(port))
         self.running = True
 
         if block:
@@ -54,4 +62,11 @@ class Apodo(Application):
                 pause()
                 self.running = False
             except KeyboardInterrupt:
-                self.clean_up()
+                self.stop()
+
+    def stop(self):
+        """ Kills all active worker processes. """
+        for process in self.workers:
+            process.terminate()
+
+        self.running = False

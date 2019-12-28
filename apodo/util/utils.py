@@ -4,12 +4,13 @@ apodo.utils
 
 This module contains assorted utility classes and methods.
 """
-
 import os
 import signal
 import socket
 import time
-from typing import Iterable, Tuple, Union
+from typing import Iterable
+from typing import Tuple
+from typing import Union
 
 
 class RequestParams:

@@ -4,27 +4,26 @@ apodo.util.workers.necromancer
 
 This module contains the `Necromancer` class.
 """
-
 import time
 from threading import Thread
 from typing import Callable
 
-from apodo.core.application import Application
+from apodo.server import Server
 
 
 class Necromancer(Thread):
     """ Implements the `Necromancer` class.
 
-    :param app: The current `Application` object.
+    :param server: The current `Server` object.
     :param spawner: A function to call to spawn workers.
     :param interval: An `int` indicating the interval at which workers should be
                        spawned/resurrected.
     """
 
-    def __init__(self, app, spawner: Callable, interval: int = 5):
+    def __init__(self, server, spawner: Callable, interval: int = 5):
         super().__init__()
 
-        self.app: Application = app
+        self.server: Server = server
         self.spawner: Callable = spawner
         self.interval: int = interval
 
@@ -35,13 +34,13 @@ class Necromancer(Thread):
             time.sleep(self.interval)
 
             living_workers = []
-            for worker in self.app.workers:
+            for worker in self.server.workers:
                 if not worker.is_alive():
                     worker = self.spawner()
                     worker.start()
 
-                    living_workers.append(worker)
+                    living_workers.serverend(worker)
                 else:
-                    living_workers.append(worker)
+                    living_workers.serverend(worker)
 
-            self.app.workers = living_workers
+            self.server.workers = living_workers

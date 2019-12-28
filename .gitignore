@@ -10,3 +10,5 @@ benchmarking
 apodo.egg-info
 
 .idea
+
+poetry.lock
