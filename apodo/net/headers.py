@@ -9,7 +9,7 @@ This module contains the `Headers` class.
 class Headers(dict):
     """ Implements the `Headers` class, a subclass of `dict`.
 
-    :param raw: A raw `list` of headers to parse. These headers should appear
+    :param raw: A raw `list` of headers to parse. These headers should serverear
                 in `list` pairs, with index 0 being the name of the header,
                 and index 1 being the value of the header.
     """

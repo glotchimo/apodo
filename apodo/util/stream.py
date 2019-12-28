@@ -81,6 +81,6 @@ class Stream(deque):
         If not, it should be integrated into the `end` method.
         """
         self.dirty = True
-        self.append(item)
+        self.serverend(item)
         if self.waiting is True:
             self.event.set()

@@ -49,7 +49,7 @@ class Server:
         for _ in range(0, (workers or cpu_count())):
             worker = spawner()
             worker.start()
-            self.workers.append(worker)
+            self.workers.serverend(worker)
 
         Necromancer(self.workers, spawner=spawner).start()
 
