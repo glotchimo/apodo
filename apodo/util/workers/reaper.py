@@ -4,16 +4,17 @@ apodo.util.workers.reaper
 
 This module contains the `Reaper` class.
 """
-
 import os
 import signal
 import time
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from email.utils import formatdate
 from threading import Thread
 
+from apodo.net.connection import STATUS_PENDING
+from apodo.net.connection import STATUS_PROCESSING
 from apodo.server import Server
-from apodo.net.connection import STATUS_PENDING, STATUS_PROCESSING
 
 
 class Reaper(Thread):

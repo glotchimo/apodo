@@ -4,13 +4,12 @@ apodo.util.parser
 
 This module contains the `Parser` class.
 """
-
 from apodo.net.connection import Connection
 
 
 class Parser:
     """ Implements the `Parser` class.
-    
+
     This class serves as a functional default HTTP parser for the `Connection`
     object, but is not optimised or C-powered. The intention is that other parsers,
     namely Kolla, will be used in its place when completed.

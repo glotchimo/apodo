@@ -4,7 +4,6 @@ apodo.util.workers.necromancer
 
 This module contains the `Necromancer` class.
 """
-
 import time
 from threading import Thread
 from typing import Callable

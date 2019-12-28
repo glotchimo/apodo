@@ -4,19 +4,16 @@ apodo.util.workers.handler
 
 This module contains the `Handler` class.
 """
-
 import asyncio
 import signal
 from functools import partial
 from multiprocessing import Process
-from socket import (
-    IPPROTO_TCP,
-    SO_REUSEADDR,
-    SO_REUSEPORT,
-    SOL_SOCKET,
-    TCP_NODELAY,
-    socket,
-)
+from socket import IPPROTO_TCP
+from socket import SO_REUSEADDR
+from socket import SO_REUSEPORT
+from socket import socket
+from socket import SOL_SOCKET
+from socket import TCP_NODELAY
 
 from apodo.server import Server
 from apodo.util.workers.reaper import Reaper

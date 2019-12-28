@@ -4,13 +4,13 @@ apodo.server
 
 This module contains the core `Apodo` class.
 """
-
 from email.utils import formatdate
 from functools import partial
 from multiprocessing import cpu_count
 
 from .net.connection import Connection
-from .util.utils import bind, pause
+from .util.utils import bind
+from .util.utils import pause
 from .util.workers.handler import Handler
 from .util.workers.necromancer import Necromancer
 
