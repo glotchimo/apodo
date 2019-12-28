@@ -4,13 +4,16 @@ apodo.connection
 
 This module contains the `Connection` class.
 """
-
-from asyncio import AbstractEventLoop, Event, Task, Transport, sleep
+from asyncio import AbstractEventLoop
+from asyncio import Event
+from asyncio import sleep
+from asyncio import Task
+from asyncio import Transport
 from time import time
 from typing import Callable
 
-from apodo.server import Server
 from apodo.net.headers import Headers
+from apodo.server import Server
 from apodo.util.parser import Parser
 from apodo.util.stream import Stream
 
@@ -26,9 +29,9 @@ class Connection:
     It controls all transport-level reading and writing operations
     from and to the client.
 
-    Many of the methods in the `Connection` class are callback methods 
-    for either the network flow or parser flow. They are marked as such 
-    respectively with either the prefix (NFC) or (PFC) before 
+    Many of the methods in the `Connection` class are callback methods
+    for either the network flow or parser flow. They are marked as such
+    respectively with either the prefix (NFC) or (PFC) before
     high-level line of the docstring.
 
     Many attributions that would be seen post-initialization would decrease
@@ -105,7 +108,7 @@ class Connection:
         :param method: A `bytes` representation of the method.
         """
         self.last_task_time = time()
-        self.current_task = Task(self.send_response(route, request), loop=self.loop)
+        # self.current_task = Task(self.send_response(), loop=self.loop)
 
     def on_body(self, body: bytes):
         """ (PFC) Reads the body of the request.
@@ -161,14 +164,14 @@ class Connection:
             self.writable = True
             self.write_permission.set()
 
-    async def send_response(self, route: Route, request: Request):
-        """ Sends the response back to the client.
+    # async def send_response(self):
+    #     """ Sends the response back to the client.
 
-        :param route: The targeted `Route`.
-        :param request: The received `Request`.
-        """
-        response: Response = await route.view(request)
-        response.send(self)
+    #     :param route: The targeted `Route`.
+    #     :param request: The received `Request`.
+    #     """
+    #     response: Response = await route.view(request)
+    #     response.send(self)
 
     def close(self):
         """ (NFC) Closes the transport connection. """
