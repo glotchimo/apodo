@@ -99,4 +99,4 @@ The Vibora framework, while intelligently conceptualized and designed, lacked th
 
 A major goal of this project is to cultivate an efficient and involved development/contribution pipeline, rather than an isolated and centralized dependent workflow for few.
 
-This project needs developers! Join us on the [slack channel](https://join.slack.com/t/gennitria/shared_invite/enQtNzMxODE4Njk2OTk0LWE0MDA3N2I2MDEyZmQxMGQzYzhmZDZiZmQwYzRjNjYzNGY3OGJkNjI5MWJlMzQyZWVmY2I3M2Q4NTg2MzA1ODQ).
+This project needs developers! Join us on the [slack channel](https://join.slack.com/t/axia-os/shared_invite/enQtNzMxODE4Njk2OTk0LWE0MDA3N2I2MDEyZmQxMGQzYzhmZDZiZmQwYzRjNjYzNGY3OGJkNjI5MWJlMzQyZWVmY2I3M2Q4NTg2MzA1ODQ).

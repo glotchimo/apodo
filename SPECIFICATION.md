@@ -10,7 +10,7 @@ Apodo is a modular, multi-protocol, and production-capable web server library wr
 This document is intended to declare and make available for amendment the high- and low-level designs of the software.
 
 ### 1.3 Scope
-As an organization, Gennitria aims to generate software that is as accessible as it is effective. Writing a fast, extensible, and well-designed web server library will enable developers to move quickly in development, especially in tandem with other Gennitria software, and create highly-optimized applications.
+As an organization, Axia aims to generate software that is as accessible as it is effective. Writing a fast, extensible, and well-designed web server library will enable developers to move quickly in development, especially in tandem with other Axia software, and create highly-optimized applications.
 
 ### 1.4 Goals
 - Design high-level abstractions that enable extensive hackability.
