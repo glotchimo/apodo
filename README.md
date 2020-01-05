@@ -1,7 +1,7 @@
 # Apodo
 ## A very fast and efficient async Python web server.
 
-Apodo is an asynchronous Python web server that derives from the core server of the Vibora framework, implementing Cython and other performance-enhancing technologies to significantly increase processing speed and efficiency.
+Apodo is an asynchronous Python web server that derives from the core server of the Vibora framework, implementing Rust and other performance-enhancing technologies to significantly increase processing speed and efficiency.
 
 The system is designed to be remarkably easy to use, and fast to deploy. It is the default internal server of the Domi web framework, and our goal is to create something that can plug easily into any existing web framework and make any and all deployment complications disappear. No more dealing with Gunicorn, Uvicorn, or anything else. Internal servers don't need to suck!
 
@@ -28,7 +28,7 @@ The plan for Apodo is to start with base functionality, and iteratively add feat
 
 ## Development Pipeline
 
-As one of our goals is to work together, the development pipeline is structured knowing that all may not be comfortable/confident enough with Cython and lower-level concepts to be able to contribute to the core system.
+As one of our goals is to work together, the development pipeline is structured knowing that all may not be comfortable/confident enough with Rust and lower-level concepts to be able to contribute to the core system.
 
 ### Vibora Analysis
 This project is for those mentioned above. As the core team works, it is necessary that we are able to reference Vibora. Vibora is woefully lacking in its inline and online documentation, and a way for newcomers to contribute is by digging through the source in the `legacy` package, figuring out what it does, and writing in docstrings/refactoring illegible code. This process will not only support and speed up the development of Apodo, but also equip newcomers with tons of knowledge about how this type of web framework operates under the hood.
@@ -36,7 +36,7 @@ This project is for those mentioned above. As the core team works, it is necessa
 To contribute in this way, all you have to do is fork with the branch schema of `v-rewrite-<module or package name>` and submit a PR once you're done adding docstrings and refactoring illegible code. Your PR must pass one review before it is merged to `dev`.
 
 ### Core Development
-This project is for those experienced in Python, with knowledge of how it works as a language, as well as C concepts like Cython and other C-optimised practices and libraries, as well as sufficient understanding of web technologies and practices.
+This project is for those experienced in Python, with knowledge of how it works as a language, as well as C concepts like Rust and other optimised practices and libraries, as well as sufficient understanding of web technologies and practices.
 
 In order to contribute this way, you must be in the Apodo Slack group and approved as a contributor on the core repository.
 

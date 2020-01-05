@@ -11,11 +11,9 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-cython = "^0.29.14"
-httptools = "^0.0.13"
+pyo3-pack = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.3.2"
 flake8 = "^3.7.9"
 black = "19.3b0"
 

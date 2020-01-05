@@ -4,7 +4,7 @@
 ## Section 1: Introduction
 
 ### 1.1 Overview
-Apodo is a modular, multi-protocol, and production-capable web server library written in Python and C.
+Apodo is a modular, multi-protocol, and production-capable web server library written in Python and Rust.
 
 ### 1.2 Context
 This document is intended to declare and make available for amendment the high- and low-level designs of the software.
